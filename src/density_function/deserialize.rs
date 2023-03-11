@@ -3,6 +3,9 @@ use std::rc::Rc;
 use serde::Deserialize;
 use valence::prelude::Ident;
 
+use crate::density_function::DensityFunction;
+use crate::registry::Registry;
+
 #[derive(Deserialize)]
 #[serde(untagged)]
 pub(crate) enum DensityFunctionTree {
@@ -226,4 +229,10 @@ pub(crate) enum RarityValueMapper {
     Type1,
     #[serde(rename = "type_2")]
     Type2,
+}
+
+impl DensityFunctionTree {
+    pub fn compile(&self, seed: u64, r: &dyn Registry) -> DensityFunction {
+        todo!()
+    }
 }
