@@ -2,11 +2,21 @@ use std::num::Wrapping;
 
 use valence::prelude::BlockPos;
 
+#[cfg(test)]
+mod test;
+
 pub mod legacy;
 pub mod xoroshiro;
 
-const FLOAT_MULTIPLIER: f32 = 5.9604645E-8f32;
-const DOUBLE_MULTIPLIER: f64 = 1.110223E-16f64;
+const FLOAT_MULTIPLIER: f32 = 5.9604645E-8_f32;
+const DOUBLE_MULTIPLIER: f64 = 1.110223E-16_f32 as f64;
+const GOLDEN_RATIO_64: Wrapping<i64> = Wrapping(-7046029254386353131_i64);
+const SILVER_RATIO_64: Wrapping<i64> = Wrapping(7640891576956012809_i64);
+
+const MODULUS_BITS: Wrapping<usize> = Wrapping(48);
+const MODULUS_MASK: Wrapping<i64> = Wrapping(281474976710655_i64);
+const MULTIPLIER: Wrapping<i64> = Wrapping(25214903917_i64);
+const INCREMENT: Wrapping<i64> = Wrapping(11_i64);
 
 pub trait RandomSource {
     fn fork(&mut self) -> Box<dyn RandomSource>;
@@ -44,4 +54,10 @@ pub fn java_string_hash(str: &str) -> i32 {
     }
 
     hash.0
+}
+
+fn block_seed(x: i32, y: i32, z: i32) -> i64 {
+    let mut seed = Wrapping((Wrapping(x) * Wrapping(3129871_i32)).0 as i64) ^ Wrapping(z as i64) * Wrapping(116129781_i64) ^ Wrapping(y as i64);
+    seed = seed * seed * Wrapping(42317861_i64) + seed * INCREMENT;
+    seed.0 >> 16
 }

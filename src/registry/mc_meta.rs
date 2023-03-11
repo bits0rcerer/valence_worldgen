@@ -43,7 +43,7 @@ impl McMetaRegistry {
                     "unable to open {}, Error: {}",
                     json_file_path.display(),
                     e
-                )))
+                )));
             }
         };
 
@@ -70,7 +70,7 @@ impl McMetaRegistry {
                 return Err(Error::custom(format!(
                     "unable to acquire lock on cache map, {}",
                     e
-                )))
+                )));
             }
         }
 
@@ -129,7 +129,7 @@ impl Registry for McMetaRegistry {
             &id,
             &self.density_function_cache,
             &McMetaRegistry::data_path("worldgen/density_function", &id),
-            |x, tree| Ok(tree),
+            |_, tree| Ok(tree),
         )?;
         df_tree.compile(seed, self.root_registry())
     }
