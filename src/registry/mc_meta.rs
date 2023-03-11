@@ -61,7 +61,7 @@ impl McMetaRegistry {
             T: de::DeserializeOwned,
     {
         match map.read() {
-            Ok(mut map) => {
+            Ok(map) => {
                 if map.contains_key(id) {
                     return Ok(map.get(id).unwrap().clone());
                 }

@@ -18,6 +18,7 @@ mod max;
 mod min;
 mod add;
 mod mul;
+mod clamp;
 
 pub trait DensityFunction {
     fn compute(&self, pos: BlockPos) -> f64;

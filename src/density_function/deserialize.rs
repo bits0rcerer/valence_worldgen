@@ -5,6 +5,7 @@ use valence::prelude::Ident;
 
 use crate::density_function::abs::abs;
 use crate::density_function::add::add;
+use crate::density_function::clamp::Clamp;
 use crate::density_function::constant::Constant;
 use crate::density_function::cube::cube;
 use crate::density_function::DensityFunction;
@@ -232,16 +233,16 @@ impl InlineDensityFunctionTree {
             InlineDensityFunctionTree::QuarterNegative { argument } => Ok(quarter_negative(argument.compile(seed, r)?)),
             InlineDensityFunctionTree::Squeeze { argument } => Ok(squeeze(argument.compile(seed, r)?)),
 
-            InlineDensityFunctionTree::Max { argument1, argument2 } => max(argument1.compile(seed, r)?, argument2.compile(seed, r)?),
-            InlineDensityFunctionTree::Min { argument1, argument2 } => min(argument1.compile(seed, r)?, argument2.compile(seed, r)?),
-            InlineDensityFunctionTree::Add { argument1, argument2 } => add(argument1.compile(seed, r)?, argument2.compile(seed, r)?),
-            InlineDensityFunctionTree::Mul { argument1, argument2 } => mul(argument1.compile(seed, r)?, argument2.compile(seed, r)?),
+            InlineDensityFunctionTree::Max { argument1, argument2 } => Ok(max(argument1.compile(seed, r)?, argument2.compile(seed, r)?)),
+            InlineDensityFunctionTree::Min { argument1, argument2 } => Ok(min(argument1.compile(seed, r)?, argument2.compile(seed, r)?)),
+            InlineDensityFunctionTree::Add { argument1, argument2 } => Ok(add(argument1.compile(seed, r)?, argument2.compile(seed, r)?)),
+            InlineDensityFunctionTree::Mul { argument1, argument2 } => Ok(mul(argument1.compile(seed, r)?, argument2.compile(seed, r)?)),
 
+            InlineDensityFunctionTree::Clamp { input, min, max } => Ok(Clamp::new(input.compile(seed, r)?, *min, *max)),
             // TODO: InlineDensityFunctionTree::BlendDensity { .. } => {}
             // TODO: InlineDensityFunctionTree::Cache2D { .. } => {}
             // TODO: InlineDensityFunctionTree::CacheAllInCell { .. } => {}
             // TODO: InlineDensityFunctionTree::CacheOnce { .. } => {}
-            // TODO: InlineDensityFunctionTree::Clamp { .. } => {}
             // TODO: InlineDensityFunctionTree::Constant { .. } => {}
             // TODO: InlineDensityFunctionTree::FlatCache { .. } => {}
             // TODO: InlineDensityFunctionTree::Interpolated { .. } => {}
