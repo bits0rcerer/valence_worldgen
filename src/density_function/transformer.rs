@@ -1,16 +1,18 @@
+use std::rc::Rc;
+
 use valence::prelude::BlockPos;
 
 use crate::density_function::{DensityFunction, sort_min_max};
 
 pub struct Transformer<T: Fn(f64) -> f64> {
     f: Box<dyn DensityFunction>,
-    transform: Box<T>,
+    transform: Rc<T>,
     min: f64,
     max: f64,
 }
 
-impl<T: Fn(f64) -> f64> Transformer<T> {
-    pub fn new(f: Box<dyn DensityFunction>, transform: T) -> Box<dyn DensityFunction> {
+impl<T: Fn(f64) -> f64 + 'static> Transformer<T> {
+    pub fn new(f: Box<dyn DensityFunction>, transform: Rc<T>) -> Box<dyn DensityFunction> {
         let (min, max) = sort_min_max(transform(f.min()), transform(f.max()));
 
         Box::new(Transformer {
@@ -22,9 +24,9 @@ impl<T: Fn(f64) -> f64> Transformer<T> {
     }
 }
 
-impl<T: Fn(f64) -> f64> DensityFunction for Transformer<T> {
+impl<T: Fn(f64) -> f64 + 'static> DensityFunction for Transformer<T> {
     fn compute(&self, pos: BlockPos) -> f64 {
-        self.transform(self.f.compute(pos).abs())
+        (self.transform)(self.f.compute(pos).abs())
     }
 
     fn map(

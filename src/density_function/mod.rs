@@ -2,6 +2,9 @@ use valence::prelude::BlockPos;
 
 pub(crate) mod deserialize;
 
+#[cfg(test)]
+mod test;
+
 mod abs;
 mod constant;
 mod cube;
@@ -9,9 +12,12 @@ mod half_negative;
 mod quarter_negative;
 mod square;
 mod squeeze;
-#[cfg(test)]
-mod test;
 mod transformer;
+mod commutative;
+mod max;
+mod min;
+mod add;
+mod mul;
 
 pub trait DensityFunction {
     fn compute(&self, pos: BlockPos) -> f64;

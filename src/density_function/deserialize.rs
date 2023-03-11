@@ -4,10 +4,14 @@ use serde::Deserialize;
 use valence::prelude::Ident;
 
 use crate::density_function::abs::abs;
+use crate::density_function::add::add;
 use crate::density_function::constant::Constant;
-use crate::density_function::cube::{cube, Cube};
+use crate::density_function::cube::cube;
 use crate::density_function::DensityFunction;
 use crate::density_function::half_negative::half_negative;
+use crate::density_function::max::max;
+use crate::density_function::min::min;
+use crate::density_function::mul::mul;
 use crate::density_function::quarter_negative::quarter_negative;
 use crate::density_function::square::square;
 use crate::density_function::squeeze::squeeze;
@@ -222,21 +226,17 @@ impl InlineDensityFunctionTree {
     pub fn compile(&self, seed: u64, r: &dyn Registry) -> eyre::Result<Box<dyn DensityFunction>> {
         match self {
             InlineDensityFunctionTree::Abs { argument } => Ok(abs(argument.compile(seed, r)?)),
-            InlineDensityFunctionTree::Square { argument } => {
-                Ok(square(argument.compile(seed, r)?))
-            }
+            InlineDensityFunctionTree::Square { argument } => Ok(square(argument.compile(seed, r)?)),
             InlineDensityFunctionTree::Cube { argument } => Ok(cube(argument.compile(seed, r)?)),
-            InlineDensityFunctionTree::HalfNegative { argument } => {
-                Ok(half_negative(argument.compile(seed, r)?))
-            }
-            InlineDensityFunctionTree::QuarterNegative { argument } => {
-                Ok(quarter_negative(argument.compile(seed, r)?))
-            }
-            InlineDensityFunctionTree::Squeeze { argument } => {
-                Ok(squeeze(argument.compile(seed, r)?))
-            }
+            InlineDensityFunctionTree::HalfNegative { argument } => Ok(half_negative(argument.compile(seed, r)?)),
+            InlineDensityFunctionTree::QuarterNegative { argument } => Ok(quarter_negative(argument.compile(seed, r)?)),
+            InlineDensityFunctionTree::Squeeze { argument } => Ok(squeeze(argument.compile(seed, r)?)),
 
-            // TODO: InlineDensityFunctionTree::Add { .. } => {}
+            InlineDensityFunctionTree::Max { argument1, argument2 } => max(argument1.compile(seed, r)?, argument2.compile(seed, r)?),
+            InlineDensityFunctionTree::Min { argument1, argument2 } => min(argument1.compile(seed, r)?, argument2.compile(seed, r)?),
+            InlineDensityFunctionTree::Add { argument1, argument2 } => add(argument1.compile(seed, r)?, argument2.compile(seed, r)?),
+            InlineDensityFunctionTree::Mul { argument1, argument2 } => mul(argument1.compile(seed, r)?, argument2.compile(seed, r)?),
+
             // TODO: InlineDensityFunctionTree::BlendDensity { .. } => {}
             // TODO: InlineDensityFunctionTree::Cache2D { .. } => {}
             // TODO: InlineDensityFunctionTree::CacheAllInCell { .. } => {}
@@ -245,9 +245,6 @@ impl InlineDensityFunctionTree {
             // TODO: InlineDensityFunctionTree::Constant { .. } => {}
             // TODO: InlineDensityFunctionTree::FlatCache { .. } => {}
             // TODO: InlineDensityFunctionTree::Interpolated { .. } => {}
-            // TODO: InlineDensityFunctionTree::Max { .. } => {}
-            // TODO: InlineDensityFunctionTree::Min { .. } => {}
-            // TODO: InlineDensityFunctionTree::Mul { .. } => {}
             // TODO: InlineDensityFunctionTree::Noise { .. } => {}
             // TODO: InlineDensityFunctionTree::OldBlendNoise { .. } => {}
             // TODO: InlineDensityFunctionTree::RangeChoice { .. } => {}
