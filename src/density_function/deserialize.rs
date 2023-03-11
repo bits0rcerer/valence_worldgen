@@ -3,7 +3,14 @@ use std::rc::Rc;
 use serde::Deserialize;
 use valence::prelude::Ident;
 
+use crate::density_function::abs::abs;
+use crate::density_function::constant::Constant;
+use crate::density_function::cube::{cube, Cube};
 use crate::density_function::DensityFunction;
+use crate::density_function::half_negative::half_negative;
+use crate::density_function::quarter_negative::quarter_negative;
+use crate::density_function::square::square;
+use crate::density_function::squeeze::squeeze;
 use crate::registry::Registry;
 
 #[derive(Deserialize)]
@@ -18,9 +25,7 @@ pub(crate) enum DensityFunctionTree {
 #[serde(tag = "type")]
 pub(crate) enum InlineDensityFunctionTree {
     #[serde(rename = "minecraft:abs")]
-    Abs {
-        argument: Rc<DensityFunctionTree>
-    },
+    Abs { argument: Rc<DensityFunctionTree> },
 
     #[serde(rename = "minecraft:add")]
     Add {
@@ -29,24 +34,16 @@ pub(crate) enum InlineDensityFunctionTree {
     },
 
     #[serde(rename = "minecraft:blend_density")]
-    BlendDensity {
-        argument: Rc<DensityFunctionTree>
-    },
+    BlendDensity { argument: Rc<DensityFunctionTree> },
 
     #[serde(rename = "minecraft:cache_2d")]
-    Cache2D {
-        argument: Rc<DensityFunctionTree>
-    },
+    Cache2D { argument: Rc<DensityFunctionTree> },
 
     #[serde(rename = "minecraft:cache_all_in_cell")]
-    CacheAllInCell {
-        argument: Rc<DensityFunctionTree>
-    },
+    CacheAllInCell { argument: Rc<DensityFunctionTree> },
 
     #[serde(rename = "minecraft:cache_once")]
-    CacheOnce {
-        argument: Rc<DensityFunctionTree>
-    },
+    CacheOnce { argument: Rc<DensityFunctionTree> },
 
     #[serde(rename = "minecraft:clamp")]
     Clamp {
@@ -56,29 +53,19 @@ pub(crate) enum InlineDensityFunctionTree {
     },
 
     #[serde(rename = "minecraft:constant")]
-    Constant {
-        argument: f64
-    },
+    Constant { argument: f64 },
 
     #[serde(rename = "minecraft:cube")]
-    Cube {
-        argument: Rc<DensityFunctionTree>
-    },
+    Cube { argument: Rc<DensityFunctionTree> },
 
     #[serde(rename = "minecraft:flat_cache")]
-    FlatCache {
-        argument: Rc<DensityFunctionTree>
-    },
+    FlatCache { argument: Rc<DensityFunctionTree> },
 
     #[serde(rename = "minecraft:half_negative")]
-    HalfNegative {
-        argument: Rc<DensityFunctionTree>
-    },
+    HalfNegative { argument: Rc<DensityFunctionTree> },
 
     #[serde(rename = "minecraft:interpolated")]
-    Interpolated {
-        argument: Rc<DensityFunctionTree>
-    },
+    Interpolated { argument: Rc<DensityFunctionTree> },
 
     #[serde(rename = "minecraft:max")]
     Max {
@@ -115,9 +102,7 @@ pub(crate) enum InlineDensityFunctionTree {
     },
 
     #[serde(rename = "minecraft:quarter_negative")]
-    QuarterNegative {
-        argument: Rc<DensityFunctionTree>,
-    },
+    QuarterNegative { argument: Rc<DensityFunctionTree> },
 
     #[serde(rename = "minecraft:range_choice")]
     RangeChoice {
@@ -158,24 +143,16 @@ pub(crate) enum InlineDensityFunctionTree {
     },
 
     #[serde(rename = "minecraft:slide")]
-    Slide {
-        argument: Rc<DensityFunctionTree>,
-    },
+    Slide { argument: Rc<DensityFunctionTree> },
 
     #[serde(rename = "minecraft:spline")]
-    Spline {
-        spline: CubicSpline,
-    },
+    Spline { spline: CubicSpline },
 
     #[serde(rename = "minecraft:square")]
-    Square {
-        argument: Rc<DensityFunctionTree>,
-    },
+    Square { argument: Rc<DensityFunctionTree> },
 
     #[serde(rename = "minecraft:squeeze")]
-    Squeeze {
-        argument: Rc<DensityFunctionTree>,
-    },
+    Squeeze { argument: Rc<DensityFunctionTree> },
 
     #[serde(rename = "minecraft:weird_scaled_sampler")]
     WeirdScaledSampler {
@@ -232,7 +209,57 @@ pub(crate) enum RarityValueMapper {
 }
 
 impl DensityFunctionTree {
-    pub fn compile(&self, seed: u64, r: &dyn Registry) -> DensityFunction {
-        todo!()
+    pub fn compile(&self, seed: u64, r: &dyn Registry) -> eyre::Result<Box<dyn DensityFunction>> {
+        match self {
+            DensityFunctionTree::Constant(arg) => Ok(Constant::new(*arg)),
+            DensityFunctionTree::Reference(id) => r.density_function(id.clone(), seed),
+            DensityFunctionTree::Inline(f) => f.compile(seed, r),
+        }
+    }
+}
+
+impl InlineDensityFunctionTree {
+    pub fn compile(&self, seed: u64, r: &dyn Registry) -> eyre::Result<Box<dyn DensityFunction>> {
+        match self {
+            InlineDensityFunctionTree::Abs { argument } => Ok(abs(argument.compile(seed, r)?)),
+            InlineDensityFunctionTree::Square { argument } => {
+                Ok(square(argument.compile(seed, r)?))
+            }
+            InlineDensityFunctionTree::Cube { argument } => Ok(cube(argument.compile(seed, r)?)),
+            InlineDensityFunctionTree::HalfNegative { argument } => {
+                Ok(half_negative(argument.compile(seed, r)?))
+            }
+            InlineDensityFunctionTree::QuarterNegative { argument } => {
+                Ok(quarter_negative(argument.compile(seed, r)?))
+            }
+            InlineDensityFunctionTree::Squeeze { argument } => {
+                Ok(squeeze(argument.compile(seed, r)?))
+            }
+
+            // TODO: InlineDensityFunctionTree::Add { .. } => {}
+            // TODO: InlineDensityFunctionTree::BlendDensity { .. } => {}
+            // TODO: InlineDensityFunctionTree::Cache2D { .. } => {}
+            // TODO: InlineDensityFunctionTree::CacheAllInCell { .. } => {}
+            // TODO: InlineDensityFunctionTree::CacheOnce { .. } => {}
+            // TODO: InlineDensityFunctionTree::Clamp { .. } => {}
+            // TODO: InlineDensityFunctionTree::Constant { .. } => {}
+            // TODO: InlineDensityFunctionTree::FlatCache { .. } => {}
+            // TODO: InlineDensityFunctionTree::Interpolated { .. } => {}
+            // TODO: InlineDensityFunctionTree::Max { .. } => {}
+            // TODO: InlineDensityFunctionTree::Min { .. } => {}
+            // TODO: InlineDensityFunctionTree::Mul { .. } => {}
+            // TODO: InlineDensityFunctionTree::Noise { .. } => {}
+            // TODO: InlineDensityFunctionTree::OldBlendNoise { .. } => {}
+            // TODO: InlineDensityFunctionTree::RangeChoice { .. } => {}
+            // TODO: InlineDensityFunctionTree::Shift { .. } => {}
+            // TODO: InlineDensityFunctionTree::ShiftA { .. } => {}
+            // TODO: InlineDensityFunctionTree::ShiftB { .. } => {}
+            // TODO: InlineDensityFunctionTree::ShiftedNoise { .. } => {}
+            // TODO: InlineDensityFunctionTree::Slide { .. } => {}
+            // TODO: InlineDensityFunctionTree::Spline { .. } => {}
+            // TODO: InlineDensityFunctionTree::WeirdScaledSampler { .. } => {}
+            // TODO: InlineDensityFunctionTree::YClampedGradient { .. } => {}
+            _ => todo!(),
+        }
     }
 }

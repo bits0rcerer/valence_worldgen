@@ -30,47 +30,69 @@ impl McMetaRegistry {
         }
     }
 
-    fn load_from_file<T>(&self, path: &PathBuf) -> serde_json::Result<T> where T: de::DeserializeOwned {
+    fn load_from_file<T>(&self, path: &PathBuf) -> serde_json::Result<T>
+        where
+            T: de::DeserializeOwned,
+    {
         let json_file_path = self.mcmeta_root.join(path);
 
         let f = match File::open(json_file_path.clone()) {
             Ok(f) => f,
-            Err(e) => return Err(serde_json::Error::custom(format!("unable to open {}, Error: {}", json_file_path.display(), e)))
+            Err(e) => {
+                return Err(serde_json::Error::custom(format!(
+                    "unable to open {}, Error: {}",
+                    json_file_path.display(),
+                    e
+                )))
+            }
         };
 
         serde_json::from_reader::<File, T>(f)
     }
 
-    fn cached<T, H: FnMut(&Ident<String>, T) -> serde_json::Result<T>>(&self, id: &Ident<String>, map: &Cache<T>, path: &PathBuf, mut hydration_visitor: H) -> serde_json::Result<Arc<T>> where T: de::DeserializeOwned {
+    fn cached<T, H: FnMut(&Ident<String>, T) -> serde_json::Result<T>>(
+        &self,
+        id: &Ident<String>,
+        map: &Cache<T>,
+        path: &PathBuf,
+        mut hydration_visitor: H,
+    ) -> serde_json::Result<Arc<T>>
+        where
+            T: de::DeserializeOwned,
+    {
         match map.read() {
             Ok(mut map) => {
                 if map.contains_key(id) {
                     return Ok(map.get(id).unwrap().clone());
                 }
             }
-            Err(e) => return Err(Error::custom(format!("unable to acquire lock on cache map, {}", e)))
+            Err(e) => {
+                return Err(Error::custom(format!(
+                    "unable to acquire lock on cache map, {}",
+                    e
+                )))
+            }
         }
 
         return match self.load_from_file(path) {
-            Ok(object) => {
-                match map.write() {
-                    Ok(mut map) => {
-                        if map.contains_key(id) {
-                            return Ok(map.get(id).unwrap().clone());
-                        }
-
-                        let arc = Arc::from(
-                            match hydration_visitor(id, object) {
-                                Ok(o) => o,
-                                Err(e) => return Err(e),
-                            }
-                        );
-                        map.insert(id.clone(), arc.clone());
-                        Ok(arc)
+            Ok(object) => match map.write() {
+                Ok(mut map) => {
+                    if map.contains_key(id) {
+                        return Ok(map.get(id).unwrap().clone());
                     }
-                    Err(e) => Err(Error::custom(format!("unable to acquire lock on map, {}", e)))
+
+                    let arc = Arc::from(match hydration_visitor(id, object) {
+                        Ok(o) => o,
+                        Err(e) => return Err(e),
+                    });
+                    map.insert(id.clone(), arc.clone());
+                    Ok(arc)
                 }
-            }
+                Err(e) => Err(Error::custom(format!(
+                    "unable to acquire lock on map, {}",
+                    e
+                ))),
+            },
             Err(e) => Err(e),
         };
     }
@@ -94,17 +116,21 @@ impl Registry for McMetaRegistry {
     fn root_registry(&self) -> &dyn Registry {
         match &self.root_registry {
             None => self,
-            Some(r) => r.as_ref()
+            Some(r) => r.as_ref(),
         }
     }
 
-    fn density_function(&self, id: Ident<String>, seed: u64) -> eyre::Result<DensityFunction> {
+    fn density_function(
+        &self,
+        id: Ident<String>,
+        seed: u64,
+    ) -> eyre::Result<Box<dyn DensityFunction>> {
         let df_tree = self.cached(
             &id,
             &self.density_function_cache,
             &McMetaRegistry::data_path("worldgen/density_function", &id),
             |x, tree| Ok(tree),
         )?;
-        Ok(df_tree.compile(seed, self.root_registry()))
+        df_tree.compile(seed, self.root_registry())
     }
 }
