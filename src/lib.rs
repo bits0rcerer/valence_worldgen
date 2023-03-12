@@ -1,4 +1,5 @@
 #![feature(wrapping_int_impl)]
+#![feature(portable_simd)]
 extern crate core;
 
 pub mod density_function;
