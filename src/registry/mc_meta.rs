@@ -9,7 +9,7 @@ use serde::de::Error;
 use valence::prelude::Ident;
 
 use crate::density_function::deserialize::DensityFunctionTree;
-use crate::noise::NoiseParameters;
+use crate::noise::deserialize::{NoiseGeneratorSettings, NoiseParameters};
 use crate::registry::Registry;
 
 type Cache<T> = RwLock<HashMap<Ident<String>, Arc<T>>>;
@@ -20,6 +20,7 @@ pub struct McMetaRegistry {
 
     density_function_cache: Cache<DensityFunctionTree>,
     noise_cache: Cache<NoiseParameters>,
+    noise_generator_settings_cache: Cache<NoiseGeneratorSettings>,
 }
 
 impl McMetaRegistry {
@@ -110,6 +111,7 @@ impl Default for McMetaRegistry {
             mcmeta_root: PathBuf::from_str("./mcmeta").unwrap(),
             density_function_cache: Default::default(),
             noise_cache: Default::default(),
+            noise_generator_settings_cache: Default::default(),
         }
     }
 }
@@ -122,11 +124,7 @@ impl Registry for McMetaRegistry {
         }
     }
 
-    fn density_function(
-        &self,
-        id: Ident<String>,
-        seed: u64,
-    ) -> eyre::Result<Arc<DensityFunctionTree>> {
+    fn density_function(&self, id: Ident<String>) -> eyre::Result<Arc<DensityFunctionTree>> {
         Ok(self.cached(
             &id,
             &self.density_function_cache,
@@ -135,11 +133,20 @@ impl Registry for McMetaRegistry {
         )?)
     }
 
-    fn noise(&self, id: Ident<String>, seed: u64) -> eyre::Result<Arc<NoiseParameters>> {
+    fn noise(&self, id: Ident<String>) -> eyre::Result<Arc<NoiseParameters>> {
         Ok(self.cached(
             &id,
             &self.noise_cache,
             &McMetaRegistry::data_path("worldgen/noise", &id),
+            |_, tree| Ok(tree),
+        )?)
+    }
+
+    fn noise_generator_settings(&self, id: Ident<String>) -> eyre::Result<Arc<NoiseGeneratorSettings>> {
+        Ok(self.cached(
+            &id,
+            &self.noise_generator_settings_cache,
+            &McMetaRegistry::data_path("worldgen/noise_settings", &id),
             |_, tree| Ok(tree),
         )?)
     }

@@ -1,6 +1,6 @@
 use std::simd::f64x4;
 
-use crate::noise::NoiseParameters;
+use crate::noise::deserialize::NoiseParameters;
 use crate::noise::perlin::PerlinNoise;
 use crate::random::RandomSource;
 
@@ -52,5 +52,9 @@ impl NormalNoise {
     pub fn get_value(&self, x: f64, y: f64, z: f64) -> f64 {
         let v = f64x4::from_array([x, y, z, 0.0]) * f64x4::splat(INPUT_FACTOR);
         dbg!((self.first.get_value(x, y, z) + self.second.get_value(v.as_array()[0], v.as_array()[1], v.as_array()[2])) * self.value_factor)
+    }
+
+    pub fn max(&self) -> f64 {
+        self.max
     }
 }

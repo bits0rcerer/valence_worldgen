@@ -1,5 +1,8 @@
+use std::fmt::Formatter;
 use std::num::Wrapping;
 
+use serde::{Deserialize, Deserializer};
+use serde::de::{Error, Visitor};
 use valence::prelude::BlockPos;
 
 #[cfg(test)]
@@ -7,6 +10,7 @@ mod test;
 
 pub mod legacy;
 pub mod xoroshiro;
+pub(crate) mod random_state;
 
 const FLOAT_MULTIPLIER: f32 = 5.9604645E-8_f32;
 const DOUBLE_MULTIPLIER: f64 = 1.110223E-16_f32 as f64;
@@ -36,6 +40,7 @@ pub trait RandomSource {
             self.next_i32();
         }
     }
+    fn kind(&self) -> Kind;
 }
 
 pub trait PositionalRandomFactory {
@@ -44,6 +49,7 @@ pub trait PositionalRandomFactory {
         self.at(pos.x, pos.y, pos.z)
     }
     fn with_hash_of(&self, string: &str) -> Box<dyn RandomSource>;
+    fn kind(&self) -> Kind;
 }
 
 pub fn java_string_hash(str: &str) -> i32 {
@@ -61,3 +67,41 @@ fn block_seed(x: i32, y: i32, z: i32) -> i64 {
     seed = seed * seed * Wrapping(42317861_i64) + seed * INCREMENT;
     seed.0 >> 16
 }
+
+#[derive(Debug, Eq, PartialEq)]
+pub enum Kind {
+    LegacyRandom,
+    Xoroshiro,
+}
+
+impl<'de> Deserialize<'de> for Kind {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error> where D: Deserializer<'de> {
+        struct V;
+        impl<'de> Visitor<'de> for V {
+            type Value = Kind;
+
+            fn expecting(&self, formatter: &mut Formatter) -> std::fmt::Result {
+                write!(formatter, "a boolean indicating the usage of the legacy random source")
+            }
+
+            fn visit_bool<E>(self, v: bool) -> Result<Self::Value, E> where E: Error {
+                Ok(match v {
+                    true => Kind::LegacyRandom,
+                    false => Kind::Xoroshiro,
+                })
+            }
+        }
+
+        deserializer.deserialize_bool(V)
+    }
+}
+
+impl Kind {
+    pub fn new_instance(&self, seed: i64) -> Box<dyn RandomSource> {
+        match self {
+            Kind::LegacyRandom => legacy::LegacyRandom::new(seed),
+            Kind::Xoroshiro => xoroshiro::XoroshiroRandom::new(seed),
+        }
+    }
+}
+

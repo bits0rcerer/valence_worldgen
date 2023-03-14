@@ -1,29 +1,13 @@
 use std::simd::{f64x4, i32x4, SimdFloat, StdFloat};
 
-use serde::Deserialize;
-
 pub mod normal;
+pub mod deserialize;
+mod noise_router;
 mod perlin;
 mod improved_noise;
 
 #[cfg(test)]
 mod test;
-
-#[derive(Clone, Deserialize)]
-pub struct NoiseParameters {
-    #[serde(rename = "firstOctave")]
-    pub first_octave: i32,
-    pub amplitudes: Vec<f64>,
-}
-
-impl NoiseParameters {
-    pub fn new(first_octave: i32, amplitudes: Vec<f64>) -> Self {
-        Self {
-            first_octave,
-            amplitudes,
-        }
-    }
-}
 
 fn wrap(xyz: f64x4) -> f64x4 {
     xyz - f64x4::floor(xyz / f64x4::splat(3.3554432E7) + f64x4::splat(0.5)) * f64x4::splat(3.3554432E7)

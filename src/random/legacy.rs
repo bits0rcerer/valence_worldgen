@@ -1,6 +1,6 @@
 use std::num::Wrapping;
 
-use crate::random::{block_seed, DOUBLE_MULTIPLIER, FLOAT_MULTIPLIER, INCREMENT, java_string_hash, MODULUS_BITS, MODULUS_MASK, MULTIPLIER, PositionalRandomFactory, RandomSource};
+use crate::random::{block_seed, DOUBLE_MULTIPLIER, FLOAT_MULTIPLIER, INCREMENT, java_string_hash, Kind, MODULUS_BITS, MODULUS_MASK, MULTIPLIER, PositionalRandomFactory, RandomSource};
 
 #[derive(Copy, Clone)]
 pub struct LegacyRandom(Wrapping<i64>);
@@ -72,17 +72,24 @@ impl RandomSource for LegacyRandom {
         let k = Wrapping((i as i64) << 27) + Wrapping(j as i64);
         k.0 as f64 * DOUBLE_MULTIPLIER
     }
+
+    fn kind(&self) -> Kind {
+        Kind::LegacyRandom
+    }
 }
 
 struct LegacyPositionalRandomFactory(i64);
 
 impl PositionalRandomFactory for LegacyPositionalRandomFactory {
     fn at(&self, x: i32, y: i32, z: i32) -> Box<dyn RandomSource> {
-        let s = block_seed(x, y, z);
         LegacyRandom::new(block_seed(x, y, z) ^ self.0)
     }
 
     fn with_hash_of(&self, string: &str) -> Box<dyn RandomSource> {
         LegacyRandom::new(java_string_hash(string) as i64 ^ self.0)
+    }
+
+    fn kind(&self) -> Kind {
+        Kind::LegacyRandom
     }
 }

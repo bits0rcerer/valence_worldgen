@@ -1,6 +1,6 @@
 use std::num::Wrapping;
 
-use crate::random::{block_seed, DOUBLE_MULTIPLIER, FLOAT_MULTIPLIER, GOLDEN_RATIO_64, PositionalRandomFactory, RandomSource, SILVER_RATIO_64};
+use crate::random::{block_seed, DOUBLE_MULTIPLIER, FLOAT_MULTIPLIER, GOLDEN_RATIO_64, Kind, PositionalRandomFactory, RandomSource, SILVER_RATIO_64};
 
 pub struct XoroshiroRandom {
     seed_lo: Wrapping<i64>,
@@ -111,6 +111,10 @@ impl RandomSource for XoroshiroRandom {
     fn next_f64(&mut self) -> f64 {
         self.next_bits(53) as f64 * DOUBLE_MULTIPLIER
     }
+
+    fn kind(&self) -> Kind {
+        Kind::Xoroshiro
+    }
 }
 
 struct XoroshiroPositionalRandomFactory {
@@ -130,5 +134,9 @@ impl PositionalRandomFactory for XoroshiroPositionalRandomFactory {
         let hi = u64::from_be_bytes(hash_bytes.as_slice()[8..16].try_into().unwrap()) as i64;
 
         XoroshiroRandom::new_128(lo ^ self.seed_lo.0, hi ^ self.seed_hi.0)
+    }
+
+    fn kind(&self) -> Kind {
+        Kind::Xoroshiro
     }
 }

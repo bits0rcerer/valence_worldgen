@@ -1,4 +1,4 @@
-use crate::noise::NoiseParameters;
+use crate::noise::deserialize::NoiseParameters;
 use crate::noise::normal::NormalNoise;
 use crate::random::xoroshiro::XoroshiroRandom;
 

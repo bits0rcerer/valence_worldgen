@@ -6,7 +6,6 @@ use crate::random::RandomSource;
 
 pub struct PerlinNoise {
     noise_levels: Vec<Option<ImprovedNoise>>,
-    first_octave: i32,
     amplitudes: Vec<f64>,
     lowest_freq_value_factor: f64,
     lowest_freq_input_factor: f64,
@@ -28,7 +27,6 @@ impl PerlinNoise {
         Self {
             max: Self::edge_value(2.0, amplitudes, lowest_freq_value_factor),
             noise_levels,
-            first_octave,
             lowest_freq_input_factor,
             lowest_freq_value_factor,
             amplitudes: Vec::from(amplitudes),
@@ -36,6 +34,9 @@ impl PerlinNoise {
     }
 
     pub fn new_legacy_nether(r: &mut dyn RandomSource, first_octave: i32, amplitudes: &[f64]) -> Self {
+        dbg!(r.kind());
+        dbg!(first_octave);
+        dbg!(amplitudes);
         todo!()
     }
 
