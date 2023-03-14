@@ -8,8 +8,8 @@ use serde::de;
 use serde::de::Error;
 use valence::prelude::Ident;
 
-use crate::density_function::DensityFunction;
 use crate::density_function::deserialize::DensityFunctionTree;
+use crate::noise::NoiseParameters;
 use crate::registry::Registry;
 
 type Cache<T> = RwLock<HashMap<Ident<String>, Arc<T>>>;
@@ -19,6 +19,7 @@ pub struct McMetaRegistry {
     mcmeta_root: PathBuf,
 
     density_function_cache: Cache<DensityFunctionTree>,
+    noise_cache: Cache<NoiseParameters>,
 }
 
 impl McMetaRegistry {
@@ -108,6 +109,7 @@ impl Default for McMetaRegistry {
             root_registry: None,
             mcmeta_root: PathBuf::from_str("./mcmeta").unwrap(),
             density_function_cache: Default::default(),
+            noise_cache: Default::default(),
         }
     }
 }
@@ -124,13 +126,21 @@ impl Registry for McMetaRegistry {
         &self,
         id: Ident<String>,
         seed: u64,
-    ) -> eyre::Result<Box<dyn DensityFunction>> {
-        let df_tree = self.cached(
+    ) -> eyre::Result<Arc<DensityFunctionTree>> {
+        Ok(self.cached(
             &id,
             &self.density_function_cache,
             &McMetaRegistry::data_path("worldgen/density_function", &id),
             |_, tree| Ok(tree),
-        )?;
-        df_tree.compile(seed, self.root_registry())
+        )?)
+    }
+
+    fn noise(&self, id: Ident<String>, seed: u64) -> eyre::Result<Arc<NoiseParameters>> {
+        Ok(self.cached(
+            &id,
+            &self.noise_cache,
+            &McMetaRegistry::data_path("worldgen/noise", &id),
+            |_, tree| Ok(tree),
+        )?)
     }
 }

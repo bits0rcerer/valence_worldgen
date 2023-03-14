@@ -20,7 +20,7 @@ use crate::registry::Registry;
 
 #[derive(Deserialize)]
 #[serde(untagged)]
-pub(crate) enum DensityFunctionTree {
+pub enum DensityFunctionTree {
     Constant(f64),
     Reference(Ident<String>),
     Inline(InlineDensityFunctionTree),
@@ -28,7 +28,7 @@ pub(crate) enum DensityFunctionTree {
 
 #[derive(Deserialize)]
 #[serde(tag = "type")]
-pub(crate) enum InlineDensityFunctionTree {
+pub enum InlineDensityFunctionTree {
     #[serde(rename = "minecraft:abs")]
     Abs { argument: Rc<DensityFunctionTree> },
 
@@ -177,7 +177,7 @@ pub(crate) enum InlineDensityFunctionTree {
 
 #[derive(Deserialize)]
 #[serde(untagged)]
-pub(crate) enum Spline {
+pub enum Spline {
     Constant(f64),
     CubicSpline {
         #[serde(flatten)]
@@ -186,7 +186,7 @@ pub(crate) enum Spline {
 }
 
 #[derive(Deserialize)]
-pub(crate) struct CubicSpline {
+pub struct CubicSpline {
     coordinate: Rc<DensityFunctionTree>,
     points: Vec<CubicSplinePoint>,
 }
@@ -206,7 +206,7 @@ pub(crate) enum CubicSplinePoint {
 }
 
 #[derive(Deserialize)]
-pub(crate) enum RarityValueMapper {
+pub enum RarityValueMapper {
     #[serde(rename = "type_1")]
     Type1,
     #[serde(rename = "type_2")]
@@ -217,7 +217,7 @@ impl DensityFunctionTree {
     pub fn compile(&self, seed: u64, r: &dyn Registry) -> eyre::Result<Box<dyn DensityFunction>> {
         match self {
             DensityFunctionTree::Constant(arg) => Ok(Constant::new(*arg)),
-            DensityFunctionTree::Reference(id) => r.density_function(id.clone(), seed),
+            DensityFunctionTree::Reference(id) => r.density_function(id.clone(), seed)?.compile(seed, r),
             DensityFunctionTree::Inline(f) => f.compile(seed, r),
         }
     }
@@ -226,6 +226,8 @@ impl DensityFunctionTree {
 impl InlineDensityFunctionTree {
     pub fn compile(&self, seed: u64, r: &dyn Registry) -> eyre::Result<Box<dyn DensityFunction>> {
         match self {
+            InlineDensityFunctionTree::Constant { argument } => Ok(Constant::new(*argument)),
+
             InlineDensityFunctionTree::Abs { argument } => Ok(abs(argument.compile(seed, r)?)),
             InlineDensityFunctionTree::Square { argument } => Ok(square(argument.compile(seed, r)?)),
             InlineDensityFunctionTree::Cube { argument } => Ok(cube(argument.compile(seed, r)?)),
@@ -239,25 +241,27 @@ impl InlineDensityFunctionTree {
             InlineDensityFunctionTree::Mul { argument1, argument2 } => Ok(mul(argument1.compile(seed, r)?, argument2.compile(seed, r)?)),
 
             InlineDensityFunctionTree::Clamp { input, min, max } => Ok(Clamp::new(input.compile(seed, r)?, *min, *max)),
-            // TODO: InlineDensityFunctionTree::BlendDensity { .. } => {}
-            // TODO: InlineDensityFunctionTree::Cache2D { .. } => {}
-            // TODO: InlineDensityFunctionTree::CacheAllInCell { .. } => {}
-            // TODO: InlineDensityFunctionTree::CacheOnce { .. } => {}
-            // TODO: InlineDensityFunctionTree::Constant { .. } => {}
-            // TODO: InlineDensityFunctionTree::FlatCache { .. } => {}
-            // TODO: InlineDensityFunctionTree::Interpolated { .. } => {}
-            // TODO: InlineDensityFunctionTree::Noise { .. } => {}
-            // TODO: InlineDensityFunctionTree::OldBlendNoise { .. } => {}
-            // TODO: InlineDensityFunctionTree::RangeChoice { .. } => {}
-            // TODO: InlineDensityFunctionTree::Shift { .. } => {}
-            // TODO: InlineDensityFunctionTree::ShiftA { .. } => {}
-            // TODO: InlineDensityFunctionTree::ShiftB { .. } => {}
-            // TODO: InlineDensityFunctionTree::ShiftedNoise { .. } => {}
-            // TODO: InlineDensityFunctionTree::Slide { .. } => {}
-            // TODO: InlineDensityFunctionTree::Spline { .. } => {}
-            // TODO: InlineDensityFunctionTree::WeirdScaledSampler { .. } => {}
-            // TODO: InlineDensityFunctionTree::YClampedGradient { .. } => {}
-            _ => todo!(),
+
+            InlineDensityFunctionTree::Cache2D { argument } => todo!(),
+            InlineDensityFunctionTree::CacheAllInCell { argument } => todo!(),
+            InlineDensityFunctionTree::CacheOnce { argument } => todo!(),
+            InlineDensityFunctionTree::FlatCache { argument } => todo!(),
+            InlineDensityFunctionTree::Interpolated { argument } => todo!(),
+
+            InlineDensityFunctionTree::Noise { noise, xz_scale, y_scale } => todo!(),
+            InlineDensityFunctionTree::Shift { noise } => todo!(),
+            InlineDensityFunctionTree::ShiftA { noise } => todo!(),
+            InlineDensityFunctionTree::ShiftB { noise } => todo!(),
+            InlineDensityFunctionTree::RangeChoice { input, min_inclusive, max_exclusive, when_in_range, when_out_of_range } => todo!(),
+            InlineDensityFunctionTree::ShiftedNoise { noise, shift_x, shift_y, shift_z, xz_scale, y_scale } => todo!(),
+            InlineDensityFunctionTree::Spline { spline } => todo!(),
+            InlineDensityFunctionTree::WeirdScaledSampler { noise, input, rarity_value_mapper } => todo!(),
+            InlineDensityFunctionTree::YClampedGradient { from_y, to_y, from_value, to_value } => todo!(),
+
+            // Blending
+            InlineDensityFunctionTree::BlendDensity { argument } => todo!(),
+            InlineDensityFunctionTree::OldBlendNoise { xz_scale, y_scale, xz_factor, y_factor, smear_scale_multiplier } => todo!(),
+            InlineDensityFunctionTree::Slide { argument } => todo!(),
         }
     }
 }
