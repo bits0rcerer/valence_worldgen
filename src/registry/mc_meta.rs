@@ -124,29 +124,29 @@ impl Registry for McMetaRegistry {
         }
     }
 
-    fn density_function(&self, id: Ident<String>) -> eyre::Result<Arc<DensityFunctionTree>> {
+    fn density_function(&self, id: &Ident<String>) -> eyre::Result<Arc<DensityFunctionTree>> {
         Ok(self.cached(
-            &id,
+            id,
             &self.density_function_cache,
-            &McMetaRegistry::data_path("worldgen/density_function", &id),
+            &McMetaRegistry::data_path("worldgen/density_function", id),
             |_, tree| Ok(tree),
         )?)
     }
 
-    fn noise(&self, id: Ident<String>) -> eyre::Result<Arc<NoiseParameters>> {
+    fn noise(&self, id: &Ident<String>) -> eyre::Result<Arc<NoiseParameters>> {
         Ok(self.cached(
-            &id,
+            id,
             &self.noise_cache,
-            &McMetaRegistry::data_path("worldgen/noise", &id),
+            &McMetaRegistry::data_path("worldgen/noise", id),
             |_, tree| Ok(tree),
         )?)
     }
 
-    fn noise_generator_settings(&self, id: Ident<String>) -> eyre::Result<Arc<NoiseGeneratorSettings>> {
+    fn noise_generator_settings(&self, id: &Ident<String>) -> eyre::Result<Arc<NoiseGeneratorSettings>> {
         Ok(self.cached(
-            &id,
+            id,
             &self.noise_generator_settings_cache,
-            &McMetaRegistry::data_path("worldgen/noise_settings", &id),
+            &McMetaRegistry::data_path("worldgen/noise_settings", id),
             |_, tree| Ok(tree),
         )?)
     }

@@ -19,6 +19,7 @@ mod min;
 mod add;
 mod mul;
 mod clamp;
+mod noise;
 pub mod compile;
 
 pub trait DensityFunction {

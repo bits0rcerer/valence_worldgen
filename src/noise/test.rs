@@ -1,3 +1,5 @@
+use std::simd::f64x4;
+
 use crate::noise::deserialize::NoiseParameters;
 use crate::noise::normal::NormalNoise;
 use crate::random::xoroshiro::XoroshiroRandom;
@@ -13,11 +15,11 @@ fn normal_noise_test() {
     };
 
     let mut r = XoroshiroRandom::new(SEED);
-    let noise = NormalNoise::new(r.as_mut(), noise_data, true);
+    let noise = NormalNoise::new(r.as_mut(), &noise_data);
 
     for (i, &s) in sample.iter().enumerate() {
         let (x, y, z) = ((r.next_f64() - 0.5) * 10000_f64, (r.next_f64() - 0.5) * 10000_f64, (r.next_f64() - 0.5) * 10000_f64);
-        let v = noise.get_value(x, y, z);
+        let v = noise.get_value(f64x4::from_array([x, y, z, 0.0]));
 
         assert!(f64::abs(v - s) < f64::EPSILON, "[{i}] {s} =?= {v} = noise({x}, {y}, {z})");
     }

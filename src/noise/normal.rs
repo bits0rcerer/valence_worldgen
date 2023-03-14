@@ -2,7 +2,7 @@ use std::simd::f64x4;
 
 use crate::noise::deserialize::NoiseParameters;
 use crate::noise::perlin::PerlinNoise;
-use crate::random::RandomSource;
+use crate::random::{Kind, RandomSource};
 
 const INPUT_FACTOR: f64 = 1.0181268882175227f64;
 
@@ -14,17 +14,16 @@ pub struct NormalNoise {
 }
 
 impl NormalNoise {
-    pub fn new(r: &mut dyn RandomSource, noise_data: NoiseParameters, not_legacy: bool) -> NormalNoise {
-        let (first, second) = if not_legacy {
-            (
+    pub fn new(r: &mut dyn RandomSource, noise_data: &NoiseParameters) -> NormalNoise {
+        let (first, second) = match r.kind() {
+            Kind::Xoroshiro => (
                 PerlinNoise::new(r, noise_data.first_octave, noise_data.amplitudes.as_slice()),
                 PerlinNoise::new(r, noise_data.first_octave, noise_data.amplitudes.as_slice()),
-            )
-        } else {
-            (
+            ),
+            Kind::LegacyRandom => (
                 PerlinNoise::new_legacy_nether(r, noise_data.first_octave, noise_data.amplitudes.as_slice()),
                 PerlinNoise::new_legacy_nether(r, noise_data.first_octave, noise_data.amplitudes.as_slice()),
-            )
+            ),
         };
 
         let mut min_amp = i32::MAX;
@@ -49,9 +48,8 @@ impl NormalNoise {
         }
     }
 
-    pub fn get_value(&self, x: f64, y: f64, z: f64) -> f64 {
-        let v = f64x4::from_array([x, y, z, 0.0]) * f64x4::splat(INPUT_FACTOR);
-        dbg!((self.first.get_value(x, y, z) + self.second.get_value(v.as_array()[0], v.as_array()[1], v.as_array()[2])) * self.value_factor)
+    pub fn get_value(&self, xyz: f64x4) -> f64 {
+        dbg!((self.first.get_value(xyz) + self.second.get_value(xyz * f64x4::splat(INPUT_FACTOR))) * self.value_factor)
     }
 
     pub fn max(&self) -> f64 {

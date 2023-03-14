@@ -1,3 +1,6 @@
+use std::simd::f64x4;
+
+use crate::density_function;
 use crate::density_function::abs::abs;
 use crate::density_function::add::add;
 use crate::density_function::clamp::Clamp;
@@ -19,7 +22,7 @@ impl DensityFunctionTree {
     pub fn compile(&self, random_state: &RandomState) -> eyre::Result<Box<dyn DensityFunction>> {
         match self {
             DensityFunctionTree::Constant(arg) => Ok(Constant::new(*arg)),
-            DensityFunctionTree::Reference(id) => random_state.registry.density_function(id.clone())?.compile(random_state),
+            DensityFunctionTree::Reference(id) => random_state.registry.density_function(id)?.compile(random_state),
             DensityFunctionTree::Inline(f) => f.compile(random_state),
         }
     }
@@ -50,11 +53,14 @@ impl InlineDensityFunctionTree {
             InlineDensityFunctionTree::FlatCache { argument } => todo!(),
             InlineDensityFunctionTree::Interpolated { argument } => todo!(),
 
-            InlineDensityFunctionTree::Noise { noise, xz_scale, y_scale } => todo!(),
-            InlineDensityFunctionTree::Shift { noise } => todo!(),
-            InlineDensityFunctionTree::ShiftA { noise } => todo!(),
-            InlineDensityFunctionTree::ShiftB { noise } => todo!(),
-            InlineDensityFunctionTree::ShiftedNoise { noise, shift_x, shift_y, shift_z, xz_scale, y_scale } => todo!(),
+            InlineDensityFunctionTree::Noise { noise, xz_scale, y_scale } => density_function::noise::noise(noise, random_state, 1.0, f64x4::from_array([*xz_scale, *y_scale, *xz_scale, 0.0])),
+            InlineDensityFunctionTree::Shift { noise } => density_function::noise::noise(noise, random_state, 4.0, f64x4::from_array([0.25, 0.25, 0.25, 0.0])),
+            InlineDensityFunctionTree::ShiftA { noise } => density_function::noise::noise(noise, random_state, 4.0, f64x4::from_array([0.25, 0.0, 0.25, 0.0])),
+            InlineDensityFunctionTree::ShiftB { noise } => density_function::noise::noise(noise, random_state, 4.0, f64x4::from_array([0.25, 0.25, 0.0, 0.0])),
+            InlineDensityFunctionTree::ShiftedNoise { noise, shift_x, shift_y, shift_z, xz_scale, y_scale } =>
+                density_function::noise::shifted_noise(noise, random_state, 1.0, f64x4::from_array([*xz_scale, *y_scale, *xz_scale, 0.0]),
+                                                       shift_x.compile(random_state)?, shift_y.compile(random_state)?, shift_z.compile(random_state)?,
+                ),
 
             InlineDensityFunctionTree::RangeChoice { input, min_inclusive, max_exclusive, when_in_range, when_out_of_range } => todo!(),
             InlineDensityFunctionTree::Spline { spline } => todo!(),
@@ -64,6 +70,8 @@ impl InlineDensityFunctionTree {
             // Blending
             InlineDensityFunctionTree::BlendDensity { argument } => todo!(),
             InlineDensityFunctionTree::OldBlendNoise { xz_scale, y_scale, xz_factor, y_factor, smear_scale_multiplier } => todo!(),
+
+            #[deprecated]
             InlineDensityFunctionTree::Slide { argument } => todo!(),
         }
     }

@@ -42,12 +42,12 @@ impl PerlinNoise {
 
     pub fn max(&self) -> f64 { self.max }
 
-    pub fn get_value(&self, x: f64, y: f64, z: f64) -> f64 {
+    pub fn get_value(&self, xyz: f64x4) -> f64 {
         let mut factors = f64x2::from_array([self.lowest_freq_input_factor, self.lowest_freq_value_factor]);
 
         self.noise_levels.iter().enumerate().map(|(i, level)| {
             let amp = self.amplitudes[i] * factors.as_array()[1];
-            let input = f64x4::from_array([x, y, z, 0.0]) * f64x4::splat(factors.as_array()[0]);
+            let input = xyz * f64x4::splat(factors.as_array()[0]);
             factors *= f64x2::from_array([2.0, 0.5]);
 
             amp * match level {
