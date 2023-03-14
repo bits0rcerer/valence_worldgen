@@ -20,6 +20,7 @@ mod add;
 mod mul;
 mod clamp;
 mod noise;
+mod range_choice;
 pub mod compile;
 
 pub trait DensityFunction {
