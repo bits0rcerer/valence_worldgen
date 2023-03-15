@@ -16,6 +16,7 @@ use crate::density_function::quarter_negative::quarter_negative;
 use crate::density_function::range_choice::RangeChoice;
 use crate::density_function::square::square;
 use crate::density_function::squeeze::squeeze;
+use crate::density_function::y_clamped_gradient::YClampedGradient;
 use crate::random::random_state::RandomState;
 use crate::registry::Registry;
 
@@ -65,9 +66,10 @@ impl InlineDensityFunctionTree {
 
             InlineDensityFunctionTree::RangeChoice { input, min_inclusive, max_exclusive, when_in_range, when_out_of_range } =>
                 Ok(RangeChoice::new(input.compile(random_state)?, *min_inclusive, *max_exclusive, when_in_range.compile(random_state)?, when_out_of_range.compile(random_state)?)),
+            InlineDensityFunctionTree::YClampedGradient { from_y, to_y, from_value, to_value } => Ok(YClampedGradient::new(*from_y, *to_y, *from_value, *to_value)?),
+
             InlineDensityFunctionTree::Spline { spline } => todo!(),
             InlineDensityFunctionTree::WeirdScaledSampler { noise, input, rarity_value_mapper } => todo!(),
-            InlineDensityFunctionTree::YClampedGradient { from_y, to_y, from_value, to_value } => todo!(),
 
             // Blending
             InlineDensityFunctionTree::BlendDensity { argument } => todo!(),

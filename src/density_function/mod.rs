@@ -21,6 +21,7 @@ mod mul;
 mod clamp;
 mod noise;
 mod range_choice;
+mod y_clamped_gradient;
 pub mod compile;
 
 pub trait DensityFunction {
