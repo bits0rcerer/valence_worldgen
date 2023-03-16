@@ -21,7 +21,8 @@ mod mul;
 mod clamp;
 mod noise;
 mod range_choice;
-mod y_clamped_gradient;
+pub(crate) mod y_clamped_gradient;
+mod spline;
 pub mod compile;
 
 pub trait DensityFunction {

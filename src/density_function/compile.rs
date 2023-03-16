@@ -67,8 +67,8 @@ impl InlineDensityFunctionTree {
             InlineDensityFunctionTree::RangeChoice { input, min_inclusive, max_exclusive, when_in_range, when_out_of_range } =>
                 Ok(RangeChoice::new(input.compile(random_state)?, *min_inclusive, *max_exclusive, when_in_range.compile(random_state)?, when_out_of_range.compile(random_state)?)),
             InlineDensityFunctionTree::YClampedGradient { from_y, to_y, from_value, to_value } => Ok(YClampedGradient::new(*from_y, *to_y, *from_value, *to_value)?),
+            InlineDensityFunctionTree::Spline { spline } => Ok(Box::new(spline.compile(random_state)?)),
 
-            InlineDensityFunctionTree::Spline { spline } => todo!(),
             InlineDensityFunctionTree::WeirdScaledSampler { noise, input, rarity_value_mapper } => todo!(),
 
             // Blending

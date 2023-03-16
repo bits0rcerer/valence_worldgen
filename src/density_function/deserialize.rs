@@ -3,6 +3,8 @@ use std::rc::Rc;
 use serde::Deserialize;
 use valence::prelude::Ident;
 
+use crate::spline::{Blueprint, CubicSpline};
+
 #[derive(Deserialize)]
 #[serde(untagged)]
 pub enum DensityFunctionTree {
@@ -136,7 +138,7 @@ pub enum InlineDensityFunctionTree {
     Slide { argument: Rc<DensityFunctionTree> },
 
     #[serde(rename = "minecraft:spline")]
-    Spline { spline: CubicSpline },
+    Spline { spline: CubicSpline<Blueprint> },
 
     #[serde(rename = "minecraft:square")]
     Square { argument: Rc<DensityFunctionTree> },
@@ -157,36 +159,6 @@ pub enum InlineDensityFunctionTree {
         to_y: i32,
         from_value: f64,
         to_value: f64,
-    },
-}
-
-#[derive(Deserialize)]
-#[serde(untagged)]
-pub enum Spline {
-    Constant(f64),
-    CubicSpline {
-        #[serde(flatten)]
-        cubic_spline: CubicSpline,
-    },
-}
-
-#[derive(Deserialize)]
-pub struct CubicSpline {
-    coordinate: Rc<DensityFunctionTree>,
-    points: Vec<CubicSplinePoint>,
-}
-
-#[derive(Deserialize)]
-pub(crate) enum CubicSplinePoint {
-    Constant {
-        location: f64,
-        derivative: f64,
-        value: f64,
-    },
-    Variable {
-        location: f64,
-        derivative: f64,
-        value: Vec<CubicSpline>,
     },
 }
 

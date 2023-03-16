@@ -6,5 +6,6 @@ pub mod density_function;
 pub mod registry;
 pub mod noise;
 pub mod random;
+pub mod spline;
 mod surface;
 mod biome;
