@@ -1,4 +1,4 @@
-use std::simd::{f64x4, i32x4, SimdFloat, StdFloat};
+use std::simd::{f64x2, f64x4, i32x4, SimdFloat, StdFloat};
 
 pub mod normal;
 pub mod deserialize;
@@ -44,8 +44,17 @@ fn lerp(t: f64, u0: f64, u1: f64) -> f64 {
     u0 + t * (u1 - u0)
 }
 
+fn lerp_x2(t: f64x2, u0: f64x2, u1: f64x2) -> f64x2 {
+    u0 + t * (u1 - u0)
+}
+
 fn lerp2(s: f64, t: f64, v00: f64, v10: f64, v01: f64, v11: f64) -> f64 {
-    lerp(t, lerp(s, v00, v10), lerp(s, v01, v11))
+    let [u0, u1] = lerp_x2(
+        f64x2::splat(s),
+        f64x2::from_array([v00, v01]),
+        f64x2::from_array([v10, v11]),
+    ).to_array();
+    lerp(t, u0, u1)
 }
 
 fn lerp3(
