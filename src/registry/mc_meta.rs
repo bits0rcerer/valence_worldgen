@@ -4,8 +4,8 @@ use std::path::PathBuf;
 use std::str::FromStr;
 use std::sync::{Arc, RwLock};
 
+use eyre::eyre;
 use serde::de;
-use serde::de::Error;
 use valence::prelude::Ident;
 
 use crate::density_function::deserialize::DensityFunctionTree;
@@ -32,7 +32,7 @@ impl McMetaRegistry {
         }
     }
 
-    fn load_from_file<T>(&self, path: &PathBuf) -> serde_json::Result<T>
+    fn load_from_file<T>(&self, path: &PathBuf) -> eyre::Result<T>
         where
             T: de::DeserializeOwned,
     {
@@ -41,24 +41,25 @@ impl McMetaRegistry {
         let f = match File::open(json_file_path.clone()) {
             Ok(f) => f,
             Err(e) => {
-                return Err(serde_json::Error::custom(format!(
+                return Err(eyre!(
                     "unable to open {}, Error: {}",
                     json_file_path.display(),
                     e
-                )));
+                ));
             }
         };
 
-        serde_json::from_reader::<File, T>(f)
+        let deserializer = &mut serde_json::Deserializer::from_reader(f);
+        serde_path_to_error::deserialize(deserializer).map_err(|e| eyre!("unable to deserialize {path:?}::{} - {e}", e.path()))
     }
 
-    fn cached<T, H: FnMut(&Ident<String>, T) -> serde_json::Result<T>>(
+    fn cached<T, H: FnMut(&Ident<String>, T) -> eyre::Result<T>>(
         &self,
         id: &Ident<String>,
         map: &Cache<T>,
         path: &PathBuf,
         mut hydration_visitor: H,
-    ) -> serde_json::Result<Arc<T>>
+    ) -> eyre::Result<Arc<T>>
         where
             T: de::DeserializeOwned,
     {
@@ -69,10 +70,10 @@ impl McMetaRegistry {
                 }
             }
             Err(e) => {
-                return Err(Error::custom(format!(
+                return Err(eyre!(
                     "unable to acquire lock on cache map, {}",
                     e
-                )));
+                ));
             }
         }
 
@@ -90,10 +91,10 @@ impl McMetaRegistry {
                     map.insert(id.clone(), arc.clone());
                     Ok(arc)
                 }
-                Err(e) => Err(Error::custom(format!(
+                Err(e) => Err(eyre!(
                     "unable to acquire lock on map, {}",
                     e
-                ))),
+                )),
             },
             Err(e) => Err(e),
         };

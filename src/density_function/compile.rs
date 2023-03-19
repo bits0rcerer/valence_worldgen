@@ -1,13 +1,18 @@
-use std::simd::f64x4;
+use std::simd::{f64x4, i32x4};
+
+use valence::prelude::ident;
 
 use crate::density_function;
 use crate::density_function::abs::abs;
 use crate::density_function::add::add;
+use crate::density_function::cache_2d::Cache2D;
+use crate::density_function::cache_once::CacheOnce;
 use crate::density_function::clamp::Clamp;
 use crate::density_function::constant::Constant;
 use crate::density_function::cube::cube;
 use crate::density_function::DensityFunction;
 use crate::density_function::deserialize::{DensityFunctionTree, InlineDensityFunctionTree};
+use crate::density_function::flat_cache::FlatCache;
 use crate::density_function::half_negative::half_negative;
 use crate::density_function::max::max;
 use crate::density_function::min::min;
@@ -24,7 +29,7 @@ impl DensityFunctionTree {
     pub fn compile(&self, random_state: &RandomState) -> eyre::Result<Box<dyn DensityFunction>> {
         match self {
             DensityFunctionTree::Constant(arg) => Ok(Constant::new(*arg)),
-            DensityFunctionTree::Reference(id) => random_state.registry.density_function(id)?.compile(random_state),
+            DensityFunctionTree::Reference(id) => random_state.registry.density_function(&ident!("{id}"))?.compile(random_state),
             DensityFunctionTree::Inline(f) => f.compile(random_state),
         }
     }
@@ -49,16 +54,26 @@ impl InlineDensityFunctionTree {
 
             InlineDensityFunctionTree::Clamp { input, min, max } => Ok(Clamp::new(input.compile(random_state)?, *min, *max)),
 
-            InlineDensityFunctionTree::Cache2D { argument } => todo!(),
-            InlineDensityFunctionTree::CacheAllInCell { argument } => todo!(),
-            InlineDensityFunctionTree::CacheOnce { argument } => todo!(),
-            InlineDensityFunctionTree::FlatCache { argument } => todo!(),
-            InlineDensityFunctionTree::Interpolated { argument } => todo!(),
+            InlineDensityFunctionTree::Cache2D { argument } => Ok(Cache2D::new(argument.compile(&random_state)?)),
+            InlineDensityFunctionTree::FlatCache { argument } => Ok(FlatCache::new(argument.compile(&random_state)?)),
+            InlineDensityFunctionTree::CacheOnce { argument } => Ok(CacheOnce::new(argument.compile(&random_state)?)),
+            InlineDensityFunctionTree::CacheAllInCell { argument } => {
+                println!("CacheAllInCell");
+                todo!()
+            }
+            InlineDensityFunctionTree::Interpolated { argument } => {
+                println!("Interpolated");
+                todo!()
+            }
 
             InlineDensityFunctionTree::Noise { noise, xz_scale, y_scale } => density_function::noise::noise(noise, random_state, 1.0, f64x4::from_array([*xz_scale, *y_scale, *xz_scale, 0.0])),
             InlineDensityFunctionTree::Shift { noise } => density_function::noise::noise(noise, random_state, 4.0, f64x4::from_array([0.25, 0.25, 0.25, 0.0])),
-            InlineDensityFunctionTree::ShiftA { noise } => density_function::noise::noise(noise, random_state, 4.0, f64x4::from_array([0.25, 0.0, 0.25, 0.0])),
-            InlineDensityFunctionTree::ShiftB { noise } => density_function::noise::noise(noise, random_state, 4.0, f64x4::from_array([0.25, 0.25, 0.0, 0.0])),
+            InlineDensityFunctionTree::ShiftA { noise } => density_function::noise::shift_noise(noise, random_state, 4.0, f64x4::from_array([0.25, 0.0, 0.25, 0.0]),
+                                                                                                |pos| i32x4::from_array([pos.x, 0, pos.z, 0]).cast(),
+            ),
+            InlineDensityFunctionTree::ShiftB { noise } => density_function::noise::shift_noise(noise, random_state, 4.0, f64x4::from_array([0.25, 0.25, 0.0, 0.0]),
+                                                                                                |pos| i32x4::from_array([pos.z, pos.x, 0, 0]).cast(),
+            ),
             InlineDensityFunctionTree::ShiftedNoise { noise, shift_x, shift_y, shift_z, xz_scale, y_scale } =>
                 density_function::noise::shifted_noise(noise, random_state, 1.0, f64x4::from_array([*xz_scale, *y_scale, *xz_scale, 0.0]),
                                                        shift_x.compile(random_state)?, shift_y.compile(random_state)?, shift_z.compile(random_state)?,
@@ -72,6 +87,8 @@ impl InlineDensityFunctionTree {
             InlineDensityFunctionTree::WeirdScaledSampler { noise, input, rarity_value_mapper } => todo!(),
 
             // Blending
+            InlineDensityFunctionTree::BlendOffset {} => Ok(Constant::new(0.0)), // ???
+            InlineDensityFunctionTree::BlendAlpha {} => Ok(Constant::new(1.0)),  // ???
             InlineDensityFunctionTree::BlendDensity { argument } => todo!(),
             InlineDensityFunctionTree::OldBlendNoise { xz_scale, y_scale, xz_factor, y_factor, smear_scale_multiplier } => todo!(),
 

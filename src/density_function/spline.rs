@@ -5,7 +5,7 @@ use crate::spline::{Built, CubicSpline};
 
 impl DensityFunction for CubicSpline<Built> {
     fn compute(&self, pos: BlockPos) -> f64 {
-        self.compute(pos) as f64
+        dbg!(self.compute(pos) as f64)
     }
 
     fn map(&self, _: fn(&dyn DensityFunction) -> Box<dyn DensityFunction>) -> Box<dyn DensityFunction> {

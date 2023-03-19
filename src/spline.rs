@@ -31,6 +31,7 @@ pub enum CubicSpline<State = Blueprint> {
 impl<'de> Deserialize<'de> for CubicSpline<Blueprint> {
     fn deserialize<D>(d: D) -> Result<Self, D::Error> where D: Deserializer<'de> {
         #[derive(Deserialize)]
+        #[serde(untagged)]
         enum Raw {
             Constant(f32),
             MultipointBlueprint {
@@ -91,7 +92,7 @@ impl CubicSpline<Blueprint> {
                 CubicSpline::<Built>::Multipoint {
                     coordinate: Rc::from(coordinate.compile(random_state)?),
                     points: points.iter().map(|p| p.compile(random_state))
-                        .fold(eyre::Result::Ok(Vec::with_capacity(points.len())), |acc, res| {
+                        .fold(Ok(Vec::with_capacity(points.len())), |acc, res| {
                             let mut points = match acc {
                                 Err(e) => return Err(e),
                                 Ok(points) => points,

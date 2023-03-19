@@ -9,7 +9,7 @@ use crate::spline::{Blueprint, CubicSpline};
 #[serde(untagged)]
 pub enum DensityFunctionTree {
     Constant(f64),
-    Reference(Ident<String>),
+    Reference(String),
     Inline(InlineDensityFunctionTree),
 }
 
@@ -37,6 +37,9 @@ pub enum InlineDensityFunctionTree {
     #[serde(rename = "minecraft:cache_once")]
     CacheOnce { argument: Rc<DensityFunctionTree> },
 
+    #[serde(rename = "minecraft:flat_cache")]
+    FlatCache { argument: Rc<DensityFunctionTree> },
+
     #[serde(rename = "minecraft:clamp")]
     Clamp {
         input: Rc<DensityFunctionTree>,
@@ -49,9 +52,6 @@ pub enum InlineDensityFunctionTree {
 
     #[serde(rename = "minecraft:cube")]
     Cube { argument: Rc<DensityFunctionTree> },
-
-    #[serde(rename = "minecraft:flat_cache")]
-    FlatCache { argument: Rc<DensityFunctionTree> },
 
     #[serde(rename = "minecraft:half_negative")]
     HalfNegative { argument: Rc<DensityFunctionTree> },
@@ -159,6 +159,12 @@ pub enum InlineDensityFunctionTree {
         from_value: f64,
         to_value: f64,
     },
+
+    #[serde(rename = "minecraft:blend_offset")]
+    BlendOffset {},
+
+    #[serde(rename = "minecraft:blend_alpha")]
+    BlendAlpha {},
 }
 
 #[derive(Deserialize)]

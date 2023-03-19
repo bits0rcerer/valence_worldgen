@@ -49,7 +49,7 @@ impl NormalNoise {
     }
 
     pub fn get_value(&self, xyz: f64x4) -> f64 {
-        dbg!((self.first.get_value(xyz) + self.second.get_value(xyz * f64x4::splat(INPUT_FACTOR))) * self.value_factor)
+        (self.first.get_value(xyz) + self.second.get_value(xyz * f64x4::splat(INPUT_FACTOR))) * self.value_factor
     }
 
     pub fn max(&self) -> f64 {

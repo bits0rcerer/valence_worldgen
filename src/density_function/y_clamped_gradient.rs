@@ -22,7 +22,7 @@ impl DensityFunction for YClampedGradient {
     fn compute(&self, pos: BlockPos) -> f64 {
         let v = i32::clamp(pos.y, self.from[0], self.from[1]) - self.from[0];
         let v = (v as f64) / ((self.from[1] - self.from[0]) as f64);
-        self.to[0] + (v * (self.to[1] - self.to[0]))
+        dbg!(self.to[0] + (v * (self.to[1] - self.to[0])))
     }
 
     fn map(&self, _: fn(&dyn DensityFunction) -> Box<dyn DensityFunction>) -> Box<dyn DensityFunction> {

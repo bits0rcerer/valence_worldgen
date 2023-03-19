@@ -9,3 +9,6 @@ pub mod random;
 pub mod spline;
 mod surface;
 mod biome;
+
+#[cfg(test)]
+mod test;

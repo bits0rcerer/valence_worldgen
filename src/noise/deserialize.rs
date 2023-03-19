@@ -34,6 +34,7 @@ pub struct NoiseGeneratorSettings {
     pub(crate) disable_mob_generation: bool,
     pub(crate) aquifers_enabled: bool,
     pub(crate) ore_veins_enabled: bool,
+    #[serde(rename = "legacy_random_source")]
     pub(crate) random_source_kind: random::Kind,
 
     #[serde(skip)] // TODO: do not skip
@@ -52,19 +53,19 @@ pub struct NoiseSettings {
 
 #[derive(Deserialize)]
 pub struct NoiseRouterBlueprint {
-    barrier: DensityFunctionTree,
-    continents: DensityFunctionTree,
-    depth: DensityFunctionTree,
-    erosion: DensityFunctionTree,
-    final_density: DensityFunctionTree,
-    fluid_level_floodedness: DensityFunctionTree,
-    fluid_level_spread: DensityFunctionTree,
-    initial_density_without_jaggedness: DensityFunctionTree,
-    lava: DensityFunctionTree,
-    ridges: DensityFunctionTree,
-    temperature: DensityFunctionTree,
-    vegetation: DensityFunctionTree,
-    vein_gap: DensityFunctionTree,
-    vein_ridged: DensityFunctionTree,
-    vein_toggle: DensityFunctionTree,
+    pub(crate) barrier: DensityFunctionTree,
+    pub(crate) continents: DensityFunctionTree,
+    pub(crate) depth: DensityFunctionTree,
+    pub(crate) erosion: DensityFunctionTree,
+    pub(crate) final_density: DensityFunctionTree,
+    pub(crate) fluid_level_floodedness: DensityFunctionTree,
+    pub(crate) fluid_level_spread: DensityFunctionTree,
+    pub(crate) initial_density_without_jaggedness: DensityFunctionTree,
+    pub(crate) lava: DensityFunctionTree,
+    pub(crate) ridges: DensityFunctionTree,
+    pub(crate) temperature: DensityFunctionTree,
+    pub(crate) vegetation: DensityFunctionTree,
+    pub(crate) vein_gap: DensityFunctionTree,
+    pub(crate) vein_ridged: DensityFunctionTree,
+    pub(crate) vein_toggle: DensityFunctionTree,
 }

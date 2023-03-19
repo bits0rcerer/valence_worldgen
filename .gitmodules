@@ -1,0 +1,3 @@
+[submodule "mcmeta"]
+	path = mcmeta
+	url = https://github.com/misode/mcmeta.git

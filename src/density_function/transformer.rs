@@ -26,7 +26,7 @@ impl<T: Fn(f64) -> f64 + 'static> Transformer<T> {
 
 impl<T: Fn(f64) -> f64 + 'static> DensityFunction for Transformer<T> {
     fn compute(&self, pos: BlockPos) -> f64 {
-        (self.transform)(self.f.compute(pos).abs())
+        dbg!((self.transform)(self.f.compute(pos).abs()))
     }
 
     fn map(
