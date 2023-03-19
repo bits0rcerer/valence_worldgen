@@ -1,8 +1,7 @@
 use std::rc::Rc;
 use std::simd::{f64x4, i32x4};
 
-use valence::prelude::BlockPos;
-use valence::protocol::Ident;
+use valence::prelude::{BlockPos, Ident};
 
 use crate::density_function::DensityFunction;
 use crate::noise::normal::NormalNoise;

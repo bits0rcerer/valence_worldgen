@@ -125,7 +125,6 @@ pub enum InlineDensityFunctionTree {
 
     #[serde(rename = "minecraft:shifted_noise")]
     ShiftedNoise {
-        #[serde(rename = "input")]
         noise: Ident<String>,
         xz_scale: f64,
         y_scale: f64,

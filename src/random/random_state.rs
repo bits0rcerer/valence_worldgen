@@ -17,7 +17,7 @@ pub struct RandomState {
 }
 
 impl RandomState {
-    pub fn new(settings: NoiseGeneratorSettings, registry: Arc<dyn Registry>, seed: i64) -> Self {
+    pub fn new(settings: &NoiseGeneratorSettings, registry: Arc<dyn Registry>, seed: i64) -> Self {
         let random = settings.random_source_kind.new_instance(seed).fork_positional();
 
         Self {

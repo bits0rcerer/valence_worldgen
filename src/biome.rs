@@ -8,7 +8,12 @@ pub struct ClimatePoint {
     erosion: ClimateRange,
     depth: ClimateRange,
     weirdness: ClimateRange,
-    offset: i64,
+    offset: f64,
 }
 
-pub type ClimateRange = [f64; 2];
+#[derive(Deserialize, Copy, Clone)]
+#[serde(untagged)]
+pub enum ClimateRange {
+    Point(f64),
+    Range([f64; 2]),
+}
