@@ -1,32 +1,31 @@
-use valence::prelude::BlockPos;
-
-pub(crate) mod deserialize;
+use valence_protocol::block_pos::BlockPos;
 
 #[cfg(test)]
 mod test;
 
 mod abs;
+mod add;
+mod cache_2d;
+mod cache_once;
+mod clamp;
+mod commutative;
+pub mod compile;
 mod constant;
 mod cube;
+pub mod deserialize;
+mod flat_cache;
 mod half_negative;
+mod max;
+mod min;
+mod mul;
+mod noise;
 mod quarter_negative;
+mod range_choice;
+mod spline;
 mod square;
 mod squeeze;
 mod transformer;
-mod commutative;
-mod max;
-mod min;
-mod add;
-mod mul;
-mod clamp;
-mod noise;
-mod range_choice;
-mod spline;
-mod flat_cache;
-mod cache_2d;
-mod cache_once;
 pub(crate) mod y_clamped_gradient;
-pub mod compile;
 
 pub trait DensityFunction: Send + Sync {
     fn compute(&self, pos: BlockPos) -> f64;

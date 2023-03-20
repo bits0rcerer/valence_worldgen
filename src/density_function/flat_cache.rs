@@ -1,4 +1,4 @@
-use valence::prelude::BlockPos;
+use valence_protocol::block_pos::BlockPos;
 
 use crate::density_function::DensityFunction;
 
@@ -6,9 +6,7 @@ pub struct FlatCache(Box<dyn DensityFunction>);
 
 impl FlatCache {
     pub fn new(input: Box<dyn DensityFunction>) -> Box<dyn DensityFunction> {
-        Box::new(
-            FlatCache(input)
-        )
+        Box::new(FlatCache(input))
     }
 }
 
@@ -18,7 +16,10 @@ impl DensityFunction for FlatCache {
         self.0.compute(BlockPos::new(pos.x, 0, pos.z))
     }
 
-    fn map(&self, _: fn(&dyn DensityFunction) -> Box<dyn DensityFunction>) -> Box<dyn DensityFunction> {
+    fn map(
+        &self,
+        _: fn(&dyn DensityFunction) -> Box<dyn DensityFunction>,
+    ) -> Box<dyn DensityFunction> {
         todo!()
     }
 

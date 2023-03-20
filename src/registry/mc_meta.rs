@@ -6,7 +6,7 @@ use std::sync::{Arc, RwLock};
 
 use eyre::eyre;
 use serde::de;
-use valence::prelude::Ident;
+use valence_protocol::ident::Ident;
 
 use crate::density_function::deserialize::DensityFunctionTree;
 use crate::noise::deserialize::{NoiseGeneratorSettings, NoiseParameters};
@@ -33,8 +33,8 @@ impl McMetaRegistry {
     }
 
     fn load_from_file<T>(&self, path: &PathBuf) -> eyre::Result<T>
-        where
-            T: de::DeserializeOwned,
+    where
+        T: de::DeserializeOwned,
     {
         let json_file_path = self.mcmeta_root.join(path);
 
@@ -50,7 +50,8 @@ impl McMetaRegistry {
         };
 
         let deserializer = &mut serde_json::Deserializer::from_reader(f);
-        serde_path_to_error::deserialize(deserializer).map_err(|e| eyre!("unable to deserialize {path:?}::{} - {e}", e.path()))
+        serde_path_to_error::deserialize(deserializer)
+            .map_err(|e| eyre!("unable to deserialize {path:?}::{} - {e}", e.path()))
     }
 
     fn cached<T, H: FnMut(&Ident<String>, T) -> eyre::Result<T>>(
@@ -60,8 +61,8 @@ impl McMetaRegistry {
         path: &PathBuf,
         mut hydration_visitor: H,
     ) -> eyre::Result<Arc<T>>
-        where
-            T: de::DeserializeOwned,
+    where
+        T: de::DeserializeOwned,
     {
         match map.read() {
             Ok(map) => {
@@ -70,10 +71,7 @@ impl McMetaRegistry {
                 }
             }
             Err(e) => {
-                return Err(eyre!(
-                    "unable to acquire lock on cache map, {}",
-                    e
-                ));
+                return Err(eyre!("unable to acquire lock on cache map, {}", e));
             }
         }
 
@@ -91,10 +89,7 @@ impl McMetaRegistry {
                     map.insert(id.clone(), arc.clone());
                     Ok(arc)
                 }
-                Err(e) => Err(eyre!(
-                    "unable to acquire lock on map, {}",
-                    e
-                )),
+                Err(e) => Err(eyre!("unable to acquire lock on map, {}", e)),
             },
             Err(e) => Err(e),
         };
@@ -126,29 +121,32 @@ impl Registry for McMetaRegistry {
     }
 
     fn density_function(&self, id: &Ident<String>) -> eyre::Result<Arc<DensityFunctionTree>> {
-        Ok(self.cached(
+        self.cached(
             id,
             &self.density_function_cache,
             &McMetaRegistry::data_path("worldgen/density_function", id),
             |_, tree| Ok(tree),
-        )?)
+        )
     }
 
     fn noise(&self, id: &Ident<String>) -> eyre::Result<Arc<NoiseParameters>> {
-        Ok(self.cached(
+        self.cached(
             id,
             &self.noise_cache,
             &McMetaRegistry::data_path("worldgen/noise", id),
             |_, tree| Ok(tree),
-        )?)
+        )
     }
 
-    fn noise_generator_settings(&self, id: &Ident<String>) -> eyre::Result<Arc<NoiseGeneratorSettings>> {
-        Ok(self.cached(
+    fn noise_generator_settings(
+        &self,
+        id: &Ident<String>,
+    ) -> eyre::Result<Arc<NoiseGeneratorSettings>> {
+        self.cached(
             id,
             &self.noise_generator_settings_cache,
             &McMetaRegistry::data_path("worldgen/noise_settings", id),
             |_, tree| Ok(tree),
-        )?)
+        )
     }
 }

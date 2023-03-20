@@ -1,4 +1,4 @@
-use valence::prelude::BlockPos;
+use valence_protocol::block_pos::BlockPos;
 
 use crate::density_function::DensityFunction;
 

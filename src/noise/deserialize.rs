@@ -1,5 +1,5 @@
 use serde::Deserialize;
-use valence::prelude::BlockState;
+use valence_protocol::block::BlockState;
 
 use crate::biome::ClimatePoint;
 use crate::density_function::deserialize::DensityFunctionTree;

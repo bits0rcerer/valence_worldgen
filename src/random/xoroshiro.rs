@@ -1,6 +1,9 @@
 use std::num::Wrapping;
 
-use crate::random::{block_seed, DOUBLE_MULTIPLIER, FLOAT_MULTIPLIER, GOLDEN_RATIO_64, Kind, PositionalRandomFactory, RandomSource, SILVER_RATIO_64};
+use crate::random::{
+    block_seed, Kind, PositionalRandomFactory, RandomSource, DOUBLE_MULTIPLIER, FLOAT_MULTIPLIER,
+    GOLDEN_RATIO_64, SILVER_RATIO_64,
+};
 
 pub struct XoroshiroRandom {
     seed_lo: Wrapping<i64>,

@@ -21,8 +21,16 @@ impl NormalNoise {
                 PerlinNoise::new(r, noise_data.first_octave, noise_data.amplitudes.as_slice()),
             ),
             Kind::LegacyRandom => (
-                PerlinNoise::new_legacy_nether(r, noise_data.first_octave, noise_data.amplitudes.as_slice()),
-                PerlinNoise::new_legacy_nether(r, noise_data.first_octave, noise_data.amplitudes.as_slice()),
+                PerlinNoise::new_legacy_nether(
+                    r,
+                    noise_data.first_octave,
+                    noise_data.amplitudes.as_slice(),
+                ),
+                PerlinNoise::new_legacy_nether(
+                    r,
+                    noise_data.first_octave,
+                    noise_data.amplitudes.as_slice(),
+                ),
             ),
         };
 
@@ -49,7 +57,8 @@ impl NormalNoise {
     }
 
     pub fn get_value(&self, xyz: f64x4) -> f64 {
-        (self.first.get_value(xyz) + self.second.get_value(xyz * f64x4::splat(INPUT_FACTOR))) * self.value_factor
+        (self.first.get_value(xyz) + self.second.get_value(xyz * f64x4::splat(INPUT_FACTOR)))
+            * self.value_factor
     }
 
     pub fn max(&self) -> f64 {

@@ -1,6 +1,9 @@
 use std::num::Wrapping;
 
-use crate::random::{block_seed, DOUBLE_MULTIPLIER, FLOAT_MULTIPLIER, INCREMENT, java_string_hash, Kind, MODULUS_BITS, MODULUS_MASK, MULTIPLIER, PositionalRandomFactory, RandomSource};
+use crate::random::{
+    block_seed, java_string_hash, Kind, PositionalRandomFactory, RandomSource, DOUBLE_MULTIPLIER,
+    FLOAT_MULTIPLIER, INCREMENT, MODULUS_BITS, MODULUS_MASK, MULTIPLIER,
+};
 
 #[derive(Copy, Clone)]
 pub struct LegacyRandom(Wrapping<i64>);
@@ -15,7 +18,7 @@ impl LegacyRandom {
 
     pub fn next_bits(&mut self, bits: usize) -> i32 {
         self.0 = (self.0 * MULTIPLIER + INCREMENT) & MODULUS_MASK;
-        return (self.0 >> (MODULUS_BITS.0 - bits)).0 as i32;
+        (self.0 >> (MODULUS_BITS.0 - bits)).0 as i32
     }
 }
 
@@ -39,7 +42,7 @@ impl RandomSource for LegacyRandom {
     fn next_i32_bound(&mut self, bound: i32) -> i32 {
         assert!(bound > 0);
 
-        if bound & bound - 1 == 0 {
+        if bound & (bound - 1) == 0 {
             (((bound as i64) * (self.next_bits(31) as i64)) >> 31) as i32
         } else {
             let mut i;
@@ -47,7 +50,9 @@ impl RandomSource for LegacyRandom {
             loop {
                 i = self.next_bits(31);
                 j = i % bound;
-                if i - j + (bound - 1) >= 0 { return j; }
+                if i - j + (bound - 1) >= 0 {
+                    return j;
+                }
             }
         }
     }

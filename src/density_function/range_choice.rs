@@ -1,4 +1,4 @@
-use valence::prelude::BlockPos;
+use valence_protocol::block_pos::BlockPos;
 
 use crate::density_function::DensityFunction;
 
@@ -39,9 +39,17 @@ impl DensityFunction for RangeChoice {
         }
     }
 
-    fn map(&self, visitor: fn(&dyn DensityFunction) -> Box<dyn DensityFunction>) -> Box<dyn DensityFunction> {
-        RangeChoice::new(self.input.map(visitor), self.min_inclusive, self.max_exclusive,
-                         self.when_in_range.map(visitor), self.when_out_of_range.map(visitor))
+    fn map(
+        &self,
+        visitor: fn(&dyn DensityFunction) -> Box<dyn DensityFunction>,
+    ) -> Box<dyn DensityFunction> {
+        RangeChoice::new(
+            self.input.map(visitor),
+            self.min_inclusive,
+            self.max_exclusive,
+            self.when_in_range.map(visitor),
+            self.when_out_of_range.map(visitor),
+        )
     }
 
     fn min(&self) -> f64 {

@@ -13,16 +13,12 @@ pub struct ImprovedNoise {
 
 impl ImprovedNoise {
     pub fn new(r: &mut dyn RandomSource) -> Self {
-        let xyz_origin = f64x4::from_array([
-            r.next_f64(),
-            r.next_f64(),
-            r.next_f64(),
-            0.0,
-        ]) * f64x4::splat(SIZE as f64);
+        let xyz_origin = f64x4::from_array([r.next_f64(), r.next_f64(), r.next_f64(), 0.0])
+            * f64x4::splat(SIZE as f64);
 
         let mut points = [0; SIZE];
-        for i in 0..points.len() {
-            points[i] = i as u8;
+        for (i, s) in points.iter_mut().enumerate() {
+            *s = i as u8;
         }
 
         for i in 0..points.len() {
@@ -30,10 +26,7 @@ impl ImprovedNoise {
             (points[i], points[j]) = (points[j], points[i]);
         }
 
-        Self {
-            xyz_origin,
-            points,
-        }
+        Self { xyz_origin, points }
     }
 
     pub fn noise(&self, xyz: f64x4) -> f64 {
@@ -58,16 +51,37 @@ impl ImprovedNoise {
         let j1 = self.p((j2 + j + 1) as usize);
 
         let d0 = grad_dot(self.p((k2 + k) as usize) as usize, abc);
-        let d1 = grad_dot(self.p((i1 + k) as usize) as usize, abc + f64x4::from_array([-1.0, 0.0, 0.0, 0.0]));
-        let d2 = grad_dot(self.p((l + k) as usize) as usize, abc + f64x4::from_array([0.0, -1.0, 0.0, 0.0]));
-        let d3 = grad_dot(self.p((j1 + k) as usize) as usize, abc + f64x4::from_array([-1.0, -1.0, 0.0, 0.0]));
-        let d4 = grad_dot(self.p((k2 + k + 1) as usize) as usize, abc + f64x4::from_array([0.0, 0.0, -1.0, 0.0]));
-        let d5 = grad_dot(self.p((i1 + k + 1) as usize) as usize, abc + f64x4::from_array([-1.0, 0.0, -1.0, 0.0]));
-        let d6 = grad_dot(self.p((l + k + 1) as usize) as usize, abc + f64x4::from_array([0.0, -1.0, -1.0, 0.0]));
-        let d7 = grad_dot(self.p((j1 + k + 1) as usize) as usize, abc + f64x4::splat(-1.0));
+        let d1 = grad_dot(
+            self.p((i1 + k) as usize) as usize,
+            abc + f64x4::from_array([-1.0, 0.0, 0.0, 0.0]),
+        );
+        let d2 = grad_dot(
+            self.p((l + k) as usize) as usize,
+            abc + f64x4::from_array([0.0, -1.0, 0.0, 0.0]),
+        );
+        let d3 = grad_dot(
+            self.p((j1 + k) as usize) as usize,
+            abc + f64x4::from_array([-1.0, -1.0, 0.0, 0.0]),
+        );
+        let d4 = grad_dot(
+            self.p((k2 + k + 1) as usize) as usize,
+            abc + f64x4::from_array([0.0, 0.0, -1.0, 0.0]),
+        );
+        let d5 = grad_dot(
+            self.p((i1 + k + 1) as usize) as usize,
+            abc + f64x4::from_array([-1.0, 0.0, -1.0, 0.0]),
+        );
+        let d6 = grad_dot(
+            self.p((l + k + 1) as usize) as usize,
+            abc + f64x4::from_array([0.0, -1.0, -1.0, 0.0]),
+        );
+        let d7 = grad_dot(
+            self.p((j1 + k + 1) as usize) as usize,
+            abc + f64x4::splat(-1.0),
+        );
 
         let [d8, d9, d10, _] = *smooth_step(abc).as_array();
 
-        return lerp3(d8, d9, d10, d0, d1, d2, d3, d4, d5, d6, d7);
+        lerp3(d8, d9, d10, d0, d1, d2, d3, d4, d5, d6, d7)
     }
 }

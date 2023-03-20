@@ -1,16 +1,17 @@
 use std::simd::{f64x2, f64x4, i32x4, SimdFloat, StdFloat};
 
-pub mod normal;
 pub mod deserialize;
-mod noise_router;
-mod perlin;
 mod improved_noise;
+mod noise_router;
+pub mod normal;
+mod perlin;
 
 #[cfg(test)]
 mod test;
 
 fn wrap(xyz: f64x4) -> f64x4 {
-    xyz - f64x4::floor(xyz / f64x4::splat(3.3554432E7) + f64x4::splat(0.5)) * f64x4::splat(3.3554432E7)
+    xyz - f64x4::floor(xyz / f64x4::splat(3.3554432E7) + f64x4::splat(0.5))
+        * f64x4::splat(3.3554432E7)
 }
 
 fn smooth_step(x: f64x4) -> f64x4 {
@@ -53,7 +54,8 @@ fn lerp2(s: f64, t: f64, v00: f64, v10: f64, v01: f64, v11: f64) -> f64 {
         f64x2::splat(s),
         f64x2::from_array([v00, v01]),
         f64x2::from_array([v10, v11]),
-    ).to_array();
+    )
+    .to_array();
     lerp(t, u0, u1)
 }
 

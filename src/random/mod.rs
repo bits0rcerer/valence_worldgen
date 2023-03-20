@@ -1,16 +1,16 @@
 use std::fmt::Formatter;
 use std::num::Wrapping;
 
-use serde::{Deserialize, Deserializer};
 use serde::de::{Error, Visitor};
-use valence::prelude::BlockPos;
+use serde::{Deserialize, Deserializer};
+use valence_protocol::block_pos::BlockPos;
 
 #[cfg(test)]
 mod test;
 
 pub mod legacy;
-pub mod xoroshiro;
 pub mod random_state;
+pub mod xoroshiro;
 
 const FLOAT_MULTIPLIER: f32 = 5.9604645E-8_f32;
 const DOUBLE_MULTIPLIER: f64 = 1.110223E-16_f32 as f64;
@@ -56,14 +56,16 @@ pub fn java_string_hash(str: &str) -> i32 {
     let mut hash = Wrapping(0i32);
 
     for b in str.as_bytes() {
-        hash = Wrapping(31) * hash + Wrapping((b & 0xff) as i32)
+        hash = Wrapping(31) * hash + Wrapping(*b as i32)
     }
 
     hash.0
 }
 
 fn block_seed(x: i32, y: i32, z: i32) -> i64 {
-    let mut seed = Wrapping((Wrapping(x) * Wrapping(3129871_i32)).0 as i64) ^ Wrapping(z as i64) * Wrapping(116129781_i64) ^ Wrapping(y as i64);
+    let mut seed = Wrapping((Wrapping(x) * Wrapping(3129871_i32)).0 as i64)
+        ^ (Wrapping(z as i64) * Wrapping(116129781_i64))
+        ^ Wrapping(y as i64);
     seed = seed * seed * Wrapping(42317861_i64) + seed * INCREMENT;
     seed.0 >> 16
 }
@@ -75,16 +77,25 @@ pub enum Kind {
 }
 
 impl<'de> Deserialize<'de> for Kind {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error> where D: Deserializer<'de> {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
         struct V;
         impl<'de> Visitor<'de> for V {
             type Value = Kind;
 
             fn expecting(&self, formatter: &mut Formatter) -> std::fmt::Result {
-                write!(formatter, "a boolean indicating the usage of the legacy random source")
+                write!(
+                    formatter,
+                    "a boolean indicating the usage of the legacy random source"
+                )
             }
 
-            fn visit_bool<E>(self, v: bool) -> Result<Self::Value, E> where E: Error {
+            fn visit_bool<E>(self, v: bool) -> Result<Self::Value, E>
+            where
+                E: Error,
+            {
                 Ok(match v {
                     true => Kind::LegacyRandom,
                     false => Kind::Xoroshiro,
@@ -104,4 +115,3 @@ impl Kind {
         }
     }
 }
-

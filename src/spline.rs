@@ -3,10 +3,10 @@ use std::sync::Arc;
 
 use eyre::eyre;
 use serde::{Deserialize, Deserializer};
-use valence::prelude::BlockPos;
+use valence_protocol::block_pos::BlockPos;
 
-use crate::density_function::DensityFunction;
 use crate::density_function::deserialize::DensityFunctionTree;
+use crate::density_function::DensityFunction;
 use crate::random::random_state::RandomState;
 
 #[derive(Copy, Clone)]
@@ -29,7 +29,10 @@ pub enum CubicSpline<State = Blueprint> {
 }
 
 impl<'de> Deserialize<'de> for CubicSpline<Blueprint> {
-    fn deserialize<D>(d: D) -> Result<Self, D::Error> where D: Deserializer<'de> {
+    fn deserialize<D>(d: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
         #[derive(Deserialize)]
         #[serde(untagged)]
         enum Raw {
@@ -39,13 +42,12 @@ impl<'de> Deserialize<'de> for CubicSpline<Blueprint> {
                 points: Vec<CubicSplinePoint<Blueprint>>,
             },
         }
-        Raw::deserialize(d).map(|r|
-            match r {
-                Raw::Constant(arg) => CubicSpline::<Blueprint>::Constant(arg),
-                Raw::MultipointBlueprint { points, coordinate } =>
-                    CubicSpline::<Blueprint>::MultipointBlueprint { points, coordinate }
+        Raw::deserialize(d).map(|r| match r {
+            Raw::Constant(arg) => CubicSpline::<Blueprint>::Constant(arg),
+            Raw::MultipointBlueprint { points, coordinate } => {
+                CubicSpline::<Blueprint>::MultipointBlueprint { points, coordinate }
             }
-        )
+        })
     }
 }
 
@@ -58,21 +60,22 @@ pub struct CubicSplinePoint<State = Blueprint> {
 }
 
 impl<'de> Deserialize<'de> for CubicSplinePoint<Blueprint> {
-    fn deserialize<D>(d: D) -> Result<Self, D::Error> where D: Deserializer<'de> {
+    fn deserialize<D>(d: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
         #[derive(Deserialize)]
         struct Raw {
             location: f32,
             derivative: f32,
             value: CubicSpline<Blueprint>,
         }
-        Raw::deserialize(d).map(|r|
-            CubicSplinePoint::<Blueprint> {
-                marker: Default::default(),
-                location: r.location,
-                derivative: r.derivative,
-                value: r.value,
-            }
-        )
+        Raw::deserialize(d).map(|r| CubicSplinePoint::<Blueprint> {
+            marker: Default::default(),
+            location: r.location,
+            derivative: r.derivative,
+            value: r.value,
+        })
     }
 }
 
@@ -91,8 +94,9 @@ impl CubicSpline<Blueprint> {
 
                 CubicSpline::<Built>::Multipoint {
                     coordinate: Arc::from(coordinate.compile(random_state)?),
-                    points: points.iter().map(|p| p.compile(random_state))
-                        .fold(Ok(Vec::with_capacity(points.len())), |acc, res| {
+                    points: points.iter().map(|p| p.compile(random_state)).fold(
+                        Ok(Vec::with_capacity(points.len())),
+                        |acc, res| {
                             let mut points = match acc {
                                 Err(e) => return Err(e),
                                 Ok(points) => points,
@@ -104,7 +108,8 @@ impl CubicSpline<Blueprint> {
                             }
 
                             Ok(points)
-                        })?,
+                        },
+                    )?,
                 }
             }
         })
@@ -187,12 +192,13 @@ pub fn lerp_32(t: f32, u0: f32, u1: f32) -> f32 {
 
 #[cfg(test)]
 mod test {
-    use valence::prelude::BlockPos;
+    use valence_protocol::block_pos::BlockPos;
 
     use crate::random::xoroshiro::XoroshiroRandom;
     use crate::spline::{Built, CubicSpline, CubicSplinePoint};
 
     #[test]
+    #[rustfmt::skip]
     fn spline_test() {
         /*
         Java Code to generate sample

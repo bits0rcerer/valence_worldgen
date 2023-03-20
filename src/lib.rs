@@ -2,13 +2,13 @@
 #![feature(portable_simd)]
 extern crate core;
 
+mod biome;
 pub mod density_function;
-pub mod registry;
 pub mod noise;
 pub mod random;
+pub mod registry;
 pub mod spline;
 mod surface;
-mod biome;
 
 #[cfg(test)]
 mod test;

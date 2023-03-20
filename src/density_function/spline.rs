@@ -1,4 +1,4 @@
-use valence::prelude::BlockPos;
+use valence_protocol::block_pos::BlockPos;
 
 use crate::density_function::DensityFunction;
 use crate::spline::{Built, CubicSpline};
@@ -8,7 +8,10 @@ impl DensityFunction for CubicSpline<Built> {
         self.compute(pos) as f64
     }
 
-    fn map(&self, _: fn(&dyn DensityFunction) -> Box<dyn DensityFunction>) -> Box<dyn DensityFunction> {
+    fn map(
+        &self,
+        _: fn(&dyn DensityFunction) -> Box<dyn DensityFunction>,
+    ) -> Box<dyn DensityFunction> {
         todo!()
     }
 

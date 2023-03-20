@@ -1,4 +1,4 @@
-use valence::prelude::BlockPos;
+use valence_protocol::block_pos::BlockPos;
 
 use crate::density_function::DensityFunction;
 
@@ -6,9 +6,7 @@ pub struct Cache2D(Box<dyn DensityFunction>);
 
 impl Cache2D {
     pub fn new(input: Box<dyn DensityFunction>) -> Box<dyn DensityFunction> {
-        Box::new(
-            Cache2D(input)
-        )
+        Box::new(Cache2D(input))
     }
 }
 
@@ -18,7 +16,10 @@ impl DensityFunction for Cache2D {
         self.0.compute(pos)
     }
 
-    fn map(&self, _: fn(&dyn DensityFunction) -> Box<dyn DensityFunction>) -> Box<dyn DensityFunction> {
+    fn map(
+        &self,
+        _: fn(&dyn DensityFunction) -> Box<dyn DensityFunction>,
+    ) -> Box<dyn DensityFunction> {
         todo!()
     }
 
