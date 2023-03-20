@@ -1,14 +1,12 @@
 [package]
-name = "mc-worldgen-rs"
+name = "valence_worldgen"
 authors = ["bits0rcerer"]
 version = "0.1.0"
 edition = "2021"
 license = "Apache-2.0"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
-valence_protocol = { git = "https://github.com/bits0rcerer/valence.git" }
+valence_protocol = { path = "../valence_protocol" }
 serde = { version = "1.0.145", features = ["derive", "rc"] }
 serde_json = "1.0.85"
 serde_path_to_error = "0.1.10"
