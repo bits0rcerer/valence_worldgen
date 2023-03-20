@@ -25,17 +25,17 @@ impl NoiseParameters {
 #[derive(Deserialize)]
 pub struct NoiseGeneratorSettings {
     #[serde(rename = "noise")]
-    pub(crate) noise_settings: NoiseSettings,
-    pub(crate) default_block: BlockState,
-    pub(crate) default_fluid: BlockState,
-    pub(crate) noise_router: NoiseRouterBlueprint,
-    pub(crate) spawn_target: Vec<ClimatePoint>,
-    pub(crate) sea_level: i32,
-    pub(crate) disable_mob_generation: bool,
-    pub(crate) aquifers_enabled: bool,
-    pub(crate) ore_veins_enabled: bool,
+    pub noise_settings: NoiseSettings,
+    pub default_block: BlockState,
+    pub default_fluid: BlockState,
+    pub noise_router: NoiseRouterBlueprint,
+    pub spawn_target: Vec<ClimatePoint>,
+    pub sea_level: i32,
+    pub disable_mob_generation: bool,
+    pub aquifers_enabled: bool,
+    pub ore_veins_enabled: bool,
     #[serde(rename = "legacy_random_source")]
-    pub(crate) random_source_kind: random::Kind,
+    pub random_source_kind: random::Kind,
 
     #[serde(skip)] // TODO: do not skip
     pub(crate) surface_rule: SurfaceRuleSource,
@@ -53,19 +53,19 @@ pub struct NoiseSettings {
 
 #[derive(Deserialize)]
 pub struct NoiseRouterBlueprint {
-    pub(crate) barrier: DensityFunctionTree,
-    pub(crate) continents: DensityFunctionTree,
-    pub(crate) depth: DensityFunctionTree,
-    pub(crate) erosion: DensityFunctionTree,
-    pub(crate) final_density: DensityFunctionTree,
-    pub(crate) fluid_level_floodedness: DensityFunctionTree,
-    pub(crate) fluid_level_spread: DensityFunctionTree,
-    pub(crate) initial_density_without_jaggedness: DensityFunctionTree,
-    pub(crate) lava: DensityFunctionTree,
-    pub(crate) ridges: DensityFunctionTree,
-    pub(crate) temperature: DensityFunctionTree,
-    pub(crate) vegetation: DensityFunctionTree,
-    pub(crate) vein_gap: DensityFunctionTree,
-    pub(crate) vein_ridged: DensityFunctionTree,
-    pub(crate) vein_toggle: DensityFunctionTree,
+    pub barrier: DensityFunctionTree,
+    pub continents: DensityFunctionTree,
+    pub depth: DensityFunctionTree,
+    pub erosion: DensityFunctionTree,
+    pub final_density: DensityFunctionTree,
+    pub fluid_level_floodedness: DensityFunctionTree,
+    pub fluid_level_spread: DensityFunctionTree,
+    pub initial_density_without_jaggedness: DensityFunctionTree,
+    pub lava: DensityFunctionTree,
+    pub ridges: DensityFunctionTree,
+    pub temperature: DensityFunctionTree,
+    pub vegetation: DensityFunctionTree,
+    pub vein_gap: DensityFunctionTree,
+    pub vein_ridged: DensityFunctionTree,
+    pub vein_toggle: DensityFunctionTree,
 }
