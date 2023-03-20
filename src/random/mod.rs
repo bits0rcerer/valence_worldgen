@@ -10,7 +10,7 @@ mod test;
 
 pub mod legacy;
 pub mod xoroshiro;
-pub(crate) mod random_state;
+pub mod random_state;
 
 const FLOAT_MULTIPLIER: f32 = 5.9604645E-8_f32;
 const DOUBLE_MULTIPLIER: f64 = 1.110223E-16_f32 as f64;
