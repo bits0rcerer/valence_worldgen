@@ -1,5 +1,5 @@
-use std::rc::Rc;
 use std::simd::{f64x4, i32x4};
+use std::sync::Arc;
 
 use valence::prelude::{BlockPos, Ident};
 
@@ -13,11 +13,11 @@ const DEFAULT_SCRAMBLER: InputScrambler = |pos: BlockPos| i32x4::from_array([pos
 
 #[derive(Clone)]
 pub struct Noise {
-    noise: Rc<NormalNoise>,
+    noise: Arc<NormalNoise>,
     value_factor: f64,
     input_factor: f64x4,
     input_scrambler: InputScrambler,
-    shift: Rc<Shift>,
+    shift: Arc<Shift>,
 }
 
 enum Shift {
@@ -41,11 +41,11 @@ impl Noise {
     ) -> Box<dyn DensityFunction> {
         Box::new(
             Self {
-                noise: Rc::new(noise),
+                noise: Arc::new(noise),
                 value_factor,
                 input_factor,
                 input_scrambler: DEFAULT_SCRAMBLER,
-                shift: Rc::new(Shift::Dynamic {
+                shift: Arc::new(Shift::Dynamic {
                     x: shift_x,
                     y: shift_y,
                     z: shift_z,
@@ -58,11 +58,11 @@ impl Noise {
                               input_scrambler: InputScrambler) -> Box<dyn DensityFunction> {
         Box::new(
             Self {
-                noise: Rc::new(noise),
+                noise: Arc::new(noise),
                 value_factor,
                 input_factor,
                 input_scrambler,
-                shift: Rc::new(Shift::None),
+                shift: Arc::new(Shift::None),
             }
         )
     }
@@ -83,7 +83,7 @@ impl DensityFunction for Noise {
                 ])
         };
 
-        dbg!(self.noise.get_value(input) * self.value_factor)
+        self.noise.get_value(input) * self.value_factor
     }
 
     fn map(&self, _: fn(&dyn DensityFunction) -> Box<dyn DensityFunction>) -> Box<dyn DensityFunction> {

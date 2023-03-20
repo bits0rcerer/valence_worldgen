@@ -1,4 +1,4 @@
-use std::rc::Rc;
+use std::sync::Arc;
 
 use serde::Deserialize;
 use valence::prelude::Ident;
@@ -17,32 +17,32 @@ pub enum DensityFunctionTree {
 #[serde(tag = "type")]
 pub enum InlineDensityFunctionTree {
     #[serde(rename = "minecraft:abs")]
-    Abs { argument: Rc<DensityFunctionTree> },
+    Abs { argument: Arc<DensityFunctionTree> },
 
     #[serde(rename = "minecraft:add")]
     Add {
-        argument1: Rc<DensityFunctionTree>,
-        argument2: Rc<DensityFunctionTree>,
+        argument1: Arc<DensityFunctionTree>,
+        argument2: Arc<DensityFunctionTree>,
     },
 
     #[serde(rename = "minecraft:blend_density")]
-    BlendDensity { argument: Rc<DensityFunctionTree> },
+    BlendDensity { argument: Arc<DensityFunctionTree> },
 
     #[serde(rename = "minecraft:cache_2d")]
-    Cache2D { argument: Rc<DensityFunctionTree> },
+    Cache2D { argument: Arc<DensityFunctionTree> },
 
     #[serde(rename = "minecraft:cache_all_in_cell")]
-    CacheAllInCell { argument: Rc<DensityFunctionTree> },
+    CacheAllInCell { argument: Arc<DensityFunctionTree> },
 
     #[serde(rename = "minecraft:cache_once")]
-    CacheOnce { argument: Rc<DensityFunctionTree> },
+    CacheOnce { argument: Arc<DensityFunctionTree> },
 
     #[serde(rename = "minecraft:flat_cache")]
-    FlatCache { argument: Rc<DensityFunctionTree> },
+    FlatCache { argument: Arc<DensityFunctionTree> },
 
     #[serde(rename = "minecraft:clamp")]
     Clamp {
-        input: Rc<DensityFunctionTree>,
+        input: Arc<DensityFunctionTree>,
         min: f64,
         max: f64,
     },
@@ -51,30 +51,30 @@ pub enum InlineDensityFunctionTree {
     Constant { argument: f64 },
 
     #[serde(rename = "minecraft:cube")]
-    Cube { argument: Rc<DensityFunctionTree> },
+    Cube { argument: Arc<DensityFunctionTree> },
 
     #[serde(rename = "minecraft:half_negative")]
-    HalfNegative { argument: Rc<DensityFunctionTree> },
+    HalfNegative { argument: Arc<DensityFunctionTree> },
 
     #[serde(rename = "minecraft:interpolated")]
-    Interpolated { argument: Rc<DensityFunctionTree> },
+    Interpolated { argument: Arc<DensityFunctionTree> },
 
     #[serde(rename = "minecraft:max")]
     Max {
-        argument1: Rc<DensityFunctionTree>,
-        argument2: Rc<DensityFunctionTree>,
+        argument1: Arc<DensityFunctionTree>,
+        argument2: Arc<DensityFunctionTree>,
     },
 
     #[serde(rename = "minecraft:min")]
     Min {
-        argument1: Rc<DensityFunctionTree>,
-        argument2: Rc<DensityFunctionTree>,
+        argument1: Arc<DensityFunctionTree>,
+        argument2: Arc<DensityFunctionTree>,
     },
 
     #[serde(rename = "minecraft:mul")]
     Mul {
-        argument1: Rc<DensityFunctionTree>,
-        argument2: Rc<DensityFunctionTree>,
+        argument1: Arc<DensityFunctionTree>,
+        argument2: Arc<DensityFunctionTree>,
     },
 
     #[serde(rename = "minecraft:noise")]
@@ -94,15 +94,15 @@ pub enum InlineDensityFunctionTree {
     },
 
     #[serde(rename = "minecraft:quarter_negative")]
-    QuarterNegative { argument: Rc<DensityFunctionTree> },
+    QuarterNegative { argument: Arc<DensityFunctionTree> },
 
     #[serde(rename = "minecraft:range_choice")]
     RangeChoice {
-        input: Rc<DensityFunctionTree>,
+        input: Arc<DensityFunctionTree>,
         min_inclusive: f64,
         max_exclusive: f64,
-        when_in_range: Rc<DensityFunctionTree>,
-        when_out_of_range: Rc<DensityFunctionTree>,
+        when_in_range: Arc<DensityFunctionTree>,
+        when_out_of_range: Arc<DensityFunctionTree>,
     },
 
     #[serde(rename = "minecraft:shift")]
@@ -128,28 +128,28 @@ pub enum InlineDensityFunctionTree {
         noise: Ident<String>,
         xz_scale: f64,
         y_scale: f64,
-        shift_x: Rc<DensityFunctionTree>,
-        shift_y: Rc<DensityFunctionTree>,
-        shift_z: Rc<DensityFunctionTree>,
+        shift_x: Arc<DensityFunctionTree>,
+        shift_y: Arc<DensityFunctionTree>,
+        shift_z: Arc<DensityFunctionTree>,
     },
 
     #[serde(rename = "minecraft:slide")]
-    Slide { argument: Rc<DensityFunctionTree> },
+    Slide { argument: Arc<DensityFunctionTree> },
 
     #[serde(rename = "minecraft:spline")]
     Spline { spline: CubicSpline<Blueprint> },
 
     #[serde(rename = "minecraft:square")]
-    Square { argument: Rc<DensityFunctionTree> },
+    Square { argument: Arc<DensityFunctionTree> },
 
     #[serde(rename = "minecraft:squeeze")]
-    Squeeze { argument: Rc<DensityFunctionTree> },
+    Squeeze { argument: Arc<DensityFunctionTree> },
 
     #[serde(rename = "minecraft:weird_scaled_sampler")]
     WeirdScaledSampler {
         rarity_value_mapper: RarityValueMapper,
         noise: Ident<String>,
-        input: Rc<DensityFunctionTree>,
+        input: Arc<DensityFunctionTree>,
     },
 
     #[serde(rename = "minecraft:y_clamped_gradient")]

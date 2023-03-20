@@ -1,5 +1,8 @@
 use std::sync::Arc;
 
+use rayon::iter::IntoParallelRefIterator;
+use rayon::prelude::ParallelIterator;
+use serde::Deserialize;
 use valence::prelude::ident;
 
 use crate::random::random_state::RandomState;
@@ -7,7 +10,7 @@ use crate::registry::mc_meta::McMetaRegistry;
 use crate::registry::Registry;
 
 #[test]
-fn generate_biome() {
+fn generate_biomes() {
     let registry = Arc::new(McMetaRegistry::new("./mcmeta", None));
 
     let settings = registry.noise_generator_settings(&ident!("minecraft:overworld"))
@@ -21,16 +24,45 @@ fn generate_biome() {
     let depth = settings.noise_router.depth.compile(&random_state).expect("density function should compile");
     let weirdness = settings.noise_router.ridges.compile(&random_state).expect("density function should compile");
 
-    let pos = valence::prelude::BlockPos::new(2048, 64, 2048);
-
-    fn quantized(f: f64) -> i64 {
-        (f * 10000_f64) as i64
+    fn quantized(f: f64) -> i32 {
+        (f * 10000_f64) as i32
     }
 
-    assert_eq!(quantized(temperature.compute(pos)), -4380);
-    assert_eq!(quantized(humidity.compute(pos)), 1784);
-    assert_eq!(quantized(continentalness.compute(pos)), -2851);
-    assert_eq!(quantized(erosion.compute(pos)), 3537);
-    assert_eq!(quantized(depth.compute(pos)), -1237);
-    assert_eq!(quantized(weirdness.compute(pos)), 2688);
+    #[derive(Deserialize)]
+    struct Sample {
+        x: i32,
+        y: i32,
+        z: i32,
+        temperature: i32,
+        humidity: i32,
+        continentalness: i32,
+        erosion: i32,
+        depth: i32,
+        weirdness: i32,
+    }
+
+    let samples = csv::Reader::from_path("src/test/biome_parameters_sample.csv")
+        .expect("should load samples")
+        .deserialize::<Sample>()
+        .map(|o| o.expect("should be a valid sample"))
+        .collect::<Vec<_>>();
+
+    let mut do_test = |value: i32, sample: i32| {
+        let diff = (sample - value).abs();
+        assert!(diff <= 1);
+        diff
+    };
+
+    let small_errors: i32 = samples.par_iter().map(|s| {
+        let pos = valence::prelude::BlockPos::new(s.x, s.y, s.z);
+
+        do_test(quantized(temperature.compute(pos)), s.temperature)
+            + do_test(quantized(humidity.compute(pos)), s.humidity)
+            + do_test(quantized(continentalness.compute(pos)), s.continentalness)
+            + do_test(quantized(erosion.compute(pos)), s.erosion)
+            + do_test(quantized(depth.compute(pos)), s.depth)
+            + do_test(quantized(weirdness.compute(pos)), s.weirdness)
+    }).sum();
+
+    println!("Tested {} samples, got {small_errors} small errors (quantized parameter - sample <= 1)", samples.len())
 }

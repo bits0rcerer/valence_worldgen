@@ -15,7 +15,7 @@ impl FlatCache {
 impl DensityFunction for FlatCache {
     fn compute(&self, pos: BlockPos) -> f64 {
         // TODO: actually cache something here
-        dbg!(self.0.compute(BlockPos::new(pos.x, 0, pos.z)))
+        self.0.compute(BlockPos::new(pos.x, 0, pos.z))
     }
 
     fn map(&self, _: fn(&dyn DensityFunction) -> Box<dyn DensityFunction>) -> Box<dyn DensityFunction> {

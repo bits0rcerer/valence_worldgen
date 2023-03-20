@@ -32,11 +32,11 @@ impl DensityFunction for RangeChoice {
     fn compute(&self, pos: BlockPos) -> f64 {
         let choice = self.input.compute(pos);
 
-        dbg!(if choice >= self.min_inclusive && choice < self.max_exclusive {
+        if choice >= self.min_inclusive && choice < self.max_exclusive {
             self.when_in_range.compute(pos)
         } else {
             self.when_out_of_range.compute(pos)
-        })
+        }
     }
 
     fn map(&self, visitor: fn(&dyn DensityFunction) -> Box<dyn DensityFunction>) -> Box<dyn DensityFunction> {

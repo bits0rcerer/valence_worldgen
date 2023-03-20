@@ -22,7 +22,7 @@ impl Clamp {
 
 impl DensityFunction for Clamp {
     fn compute(&self, pos: BlockPos) -> f64 {
-        dbg!(f64::clamp(self.f.compute(pos), self.min, self.max))
+        f64::clamp(self.f.compute(pos), self.min, self.max)
     }
 
     fn map(&self, visitor: fn(&dyn DensityFunction) -> Box<dyn DensityFunction>) -> Box<dyn DensityFunction> {

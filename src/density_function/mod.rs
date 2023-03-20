@@ -28,7 +28,7 @@ mod cache_once;
 pub(crate) mod y_clamped_gradient;
 pub mod compile;
 
-pub trait DensityFunction {
+pub trait DensityFunction: Send + Sync {
     fn compute(&self, pos: BlockPos) -> f64;
     fn map(
         &self,

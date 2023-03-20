@@ -12,7 +12,7 @@ impl Constant {
 
 impl DensityFunction for Constant {
     fn compute(&self, _: BlockPos) -> f64 {
-        dbg!(self.0)
+        self.0
     }
 
     fn map(

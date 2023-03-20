@@ -1,5 +1,5 @@
 use std::marker::PhantomData;
-use std::rc::Rc;
+use std::sync::Arc;
 
 use eyre::eyre;
 use serde::{Deserialize, Deserializer};
@@ -19,11 +19,11 @@ pub struct Built;
 pub enum CubicSpline<State = Blueprint> {
     Constant(f32),
     Multipoint {
-        coordinate: Rc<dyn DensityFunction>,
+        coordinate: Arc<dyn DensityFunction>,
         points: Vec<CubicSplinePoint<Built>>,
     },
     MultipointBlueprint {
-        coordinate: Rc<DensityFunctionTree>,
+        coordinate: Arc<DensityFunctionTree>,
         points: Vec<CubicSplinePoint<State>>,
     },
 }
@@ -35,7 +35,7 @@ impl<'de> Deserialize<'de> for CubicSpline<Blueprint> {
         enum Raw {
             Constant(f32),
             MultipointBlueprint {
-                coordinate: Rc<DensityFunctionTree>,
+                coordinate: Arc<DensityFunctionTree>,
                 points: Vec<CubicSplinePoint<Blueprint>>,
             },
         }
@@ -90,7 +90,7 @@ impl CubicSpline<Blueprint> {
                 }
 
                 CubicSpline::<Built>::Multipoint {
-                    coordinate: Rc::from(coordinate.compile(random_state)?),
+                    coordinate: Arc::from(coordinate.compile(random_state)?),
                     points: points.iter().map(|p| p.compile(random_state))
                         .fold(Ok(Vec::with_capacity(points.len())), |acc, res| {
                             let mut points = match acc {

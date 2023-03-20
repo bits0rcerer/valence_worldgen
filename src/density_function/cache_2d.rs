@@ -15,7 +15,7 @@ impl Cache2D {
 impl DensityFunction for Cache2D {
     fn compute(&self, pos: BlockPos) -> f64 {
         // TODO: actually cache something here
-        dbg!(self.0.compute(pos))
+        self.0.compute(pos)
     }
 
     fn map(&self, _: fn(&dyn DensityFunction) -> Box<dyn DensityFunction>) -> Box<dyn DensityFunction> {

@@ -15,7 +15,7 @@ impl CacheOnce {
 impl DensityFunction for CacheOnce {
     fn compute(&self, pos: BlockPos) -> f64 {
         // TODO: actually cache something here
-        dbg!(self.0.compute(pos))
+        self.0.compute(pos)
     }
 
     fn map(&self, _: fn(&dyn DensityFunction) -> Box<dyn DensityFunction>) -> Box<dyn DensityFunction> {

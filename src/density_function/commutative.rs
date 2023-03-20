@@ -77,7 +77,7 @@ impl Commutative {
 
 impl DensityFunction for Commutative {
     fn compute(&self, pos: BlockPos) -> f64 {
-        dbg!(self.operation.apply(self.f1.compute(pos), self.f2.compute(pos)))
+        self.operation.apply(self.f1.compute(pos), self.f2.compute(pos))
     }
 
     fn map(&self, visitor: fn(&dyn DensityFunction) -> Box<dyn DensityFunction>) -> Box<dyn DensityFunction> {
