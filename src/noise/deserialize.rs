@@ -41,14 +41,14 @@ pub struct NoiseGeneratorSettings {
     pub(crate) surface_rule: SurfaceRuleSource,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Copy, Clone)]
 pub struct NoiseSettings {
-    min_y: i32,
-    height: i32,
+    pub min_y: i32,
+    pub height: u32,
     #[serde(rename = "size_horizontal")]
-    xz_size: i32,
+    pub xz_size: i32,
     #[serde(rename = "size_vertical")]
-    y_size: i32,
+    pub y_size: i32,
 }
 
 #[derive(Deserialize)]
