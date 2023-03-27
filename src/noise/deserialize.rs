@@ -51,6 +51,15 @@ pub struct NoiseSettings {
     pub y_size: i32,
 }
 
+impl NoiseSettings {
+    pub fn cell_height(&self) -> i32 {
+        self.y_size * 4
+    }
+    pub fn cell_width(&self) -> i32 {
+        self.xz_size * 4
+    }
+}
+
 #[derive(Deserialize)]
 pub struct NoiseRouterBlueprint {
     pub barrier: DensityFunctionTree,
