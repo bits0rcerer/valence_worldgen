@@ -1,6 +1,6 @@
 [package]
 name = "valence_worldgen"
-authors = ["bits0rcerer"]
+authors = ["bits0rcerer <25325997+bits0rcerer@users.noreply.github.com>"]
 version = "0.1.0"
 edition = "2021"
 license = "Apache-2.0"
