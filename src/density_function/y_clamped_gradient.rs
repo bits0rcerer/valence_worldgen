@@ -1,6 +1,6 @@
 use valence_protocol::block_pos::BlockPos;
 
-use crate::density_function::DensityFunction;
+use crate::density_function::{ContextProvider, DensityFunction};
 
 pub struct YClampedGradient {
     from: [i32; 2],
@@ -28,10 +28,7 @@ impl DensityFunction for YClampedGradient {
         self.to[0] + (v * (self.to[1] - self.to[0]))
     }
 
-    fn map(
-        &self,
-        _: fn(&dyn DensityFunction) -> Box<dyn DensityFunction>,
-    ) -> Box<dyn DensityFunction> {
+    fn fill(&self, slice: &mut [f64], _: &dyn ContextProvider) {
         todo!()
     }
 

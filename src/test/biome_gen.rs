@@ -1,3 +1,5 @@
+use std::env;
+use std::path::Path;
 use std::sync::Arc;
 
 use rayon::iter::IntoParallelRefIterator;
@@ -12,7 +14,7 @@ use crate::registry::Registry;
 
 #[test]
 fn generate_biomes() {
-    let registry = Arc::new(McMetaRegistry::new("./mcmeta", None));
+    let registry = Arc::new(McMetaRegistry::new(concat!(env!("CARGO_MANIFEST_DIR"), "/../../mcmeta"), None));
 
     let settings = registry
         .noise_generator_settings(&ident!("minecraft:overworld"))

@@ -1,6 +1,6 @@
 use valence_protocol::block_pos::BlockPos;
 
-use crate::density_function::DensityFunction;
+use crate::density_function::{ContextProvider, DensityFunction};
 use crate::spline::{Built, CubicSpline};
 
 impl DensityFunction for CubicSpline<Built> {
@@ -8,11 +8,8 @@ impl DensityFunction for CubicSpline<Built> {
         self.compute(pos) as f64
     }
 
-    fn map(
-        &self,
-        _: fn(&dyn DensityFunction) -> Box<dyn DensityFunction>,
-    ) -> Box<dyn DensityFunction> {
-        todo!()
+    fn fill(&self, slice: &mut [f64], context_provider: &dyn ContextProvider) {
+        context_provider.fill_direct(slice, self)
     }
 
     fn min(&self) -> f64 {

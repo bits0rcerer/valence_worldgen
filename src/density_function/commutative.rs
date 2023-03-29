@@ -1,6 +1,7 @@
+use std::iter::zip;
 use valence_protocol::block_pos::BlockPos;
 
-use crate::density_function::DensityFunction;
+use crate::density_function::{ContextProvider, DensityFunction};
 
 #[derive(Copy, Clone)]
 pub enum Operation {
@@ -85,13 +86,25 @@ impl DensityFunction for Commutative {
             .apply(self.f1.compute(pos), self.f2.compute(pos))
     }
 
-    fn map(
-        &self,
-        visitor: fn(&dyn DensityFunction) -> Box<dyn DensityFunction>,
-    ) -> Box<dyn DensityFunction> {
-        visitor(
-            Commutative::new(self.f1.map(visitor), self.f2.map(visitor), self.operation).as_ref(),
-        )
+    fn fill(&self, slice: &mut [f64], context_provider: &dyn ContextProvider) {
+        let len = slice.len();
+
+        let a = slice;
+        self.f1.fill(a, context_provider);
+
+        // TODO: Optimization Commutative::fill
+        // maybe put second part of this fill into the Operation enum?
+        // there a cases where we do not need to evaluate f2
+        // there a cases where we do not need to evaluate f2 for the whole slice -> only evaluate at specific indexes
+        // e.g for Operation::MAX: in case we know the bigger values based on density function interval borders
+        // e.g for Operation::MIN: in case we know the smaller values based on density function interval borders
+        // e.g for Operation::MUL: only evaluate f2(x) when f1(x) does not evaluated to zero
+        let mut b = Vec::with_capacity(len);
+        b.resize(len, Default::default());
+        self.f2.fill(b.as_mut_slice(), context_provider);
+
+        zip(a.iter_mut(), b.iter())
+            .for_each(|(a, &b)| *a = self.operation.apply(*a, b))
     }
 
     fn min(&self) -> f64 {

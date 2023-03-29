@@ -1,6 +1,6 @@
 use valence_protocol::block_pos::BlockPos;
 
-use crate::density_function::DensityFunction;
+use crate::density_function::{ContextProvider, DensityFunction};
 
 pub struct Clamp {
     f: Box<dyn DensityFunction>,
@@ -19,11 +19,9 @@ impl DensityFunction for Clamp {
         f64::clamp(self.f.compute(pos), self.min, self.max)
     }
 
-    fn map(
-        &self,
-        visitor: fn(&dyn DensityFunction) -> Box<dyn DensityFunction>,
-    ) -> Box<dyn DensityFunction> {
-        Clamp::new(self.f.map(visitor), self.min, self.max)
+    fn fill(&self, slice: &mut [f64], context_provider: &dyn ContextProvider) {
+        self.f.fill(slice, context_provider);
+        slice.iter_mut().for_each(|v| *v = v.clamp(self.min, self.max))
     }
 
     fn min(&self) -> f64 {

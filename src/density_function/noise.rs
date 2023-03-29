@@ -4,7 +4,7 @@ use std::sync::Arc;
 use valence_protocol::block_pos::BlockPos;
 use valence_protocol::ident::Ident;
 
-use crate::density_function::DensityFunction;
+use crate::density_function::{ContextProvider, DensityFunction};
 use crate::noise::normal::NormalNoise;
 use crate::random::random_state::RandomState;
 
@@ -91,11 +91,8 @@ impl DensityFunction for Noise {
         self.noise.get_value(input) * self.value_factor
     }
 
-    fn map(
-        &self,
-        _: fn(&dyn DensityFunction) -> Box<dyn DensityFunction>,
-    ) -> Box<dyn DensityFunction> {
-        Box::new(self.clone())
+    fn fill(&self, slice: &mut [f64], context_provider: &dyn ContextProvider) {
+        context_provider.fill_direct(slice, self)
     }
 
     fn min(&self) -> f64 {

@@ -1,6 +1,6 @@
 use valence_protocol::block_pos::BlockPos;
 
-use crate::density_function::DensityFunction;
+use crate::density_function::{ContextProvider, DensityFunction};
 
 pub struct Constant(f64);
 
@@ -15,11 +15,8 @@ impl DensityFunction for Constant {
         self.0
     }
 
-    fn map(
-        &self,
-        visitor: fn(&dyn DensityFunction) -> Box<dyn DensityFunction>,
-    ) -> Box<dyn DensityFunction> {
-        visitor(self)
+    fn fill(&self, slice: &mut [f64], context_provider: &dyn ContextProvider) {
+        slice.iter_mut().for_each(|v| *v = self.0)
     }
 
     fn min(&self) -> f64 {

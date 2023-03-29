@@ -1,6 +1,6 @@
 use valence_protocol::block_pos::BlockPos;
 
-use crate::density_function::DensityFunction;
+use crate::density_function::{ContextProvider, DensityFunction};
 
 pub struct RangeChoice {
     input: Box<dyn DensityFunction>,
@@ -39,17 +39,17 @@ impl DensityFunction for RangeChoice {
         }
     }
 
-    fn map(
-        &self,
-        visitor: fn(&dyn DensityFunction) -> Box<dyn DensityFunction>,
-    ) -> Box<dyn DensityFunction> {
-        RangeChoice::new(
-            self.input.map(visitor),
-            self.min_inclusive,
-            self.max_exclusive,
-            self.when_in_range.map(visitor),
-            self.when_out_of_range.map(visitor),
-        )
+    fn fill(&self, slice: &mut [f64], context_provider: &dyn ContextProvider) {
+        self.input.fill(slice, context_provider);
+
+        slice.iter_mut().enumerate()
+            .for_each(|(i, v)| {
+                if *v >= self.min_inclusive && *v < self.max_exclusive {
+                    *v = self.when_in_range.compute(context_provider.for_index(i))
+                } else {
+                    *v = self.when_out_of_range.compute(context_provider.for_index(i))
+                }
+            })
     }
 
     fn min(&self) -> f64 {
