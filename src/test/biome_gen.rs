@@ -1,12 +1,11 @@
 use std::env;
-use std::path::Path;
 use std::sync::Arc;
 
 use rayon::iter::IntoParallelRefIterator;
 use rayon::prelude::ParallelIterator;
 use serde::Deserialize;
-use valence_protocol::block_pos::BlockPos;
-use valence_protocol::ident;
+use valence_core::block_pos::BlockPos;
+use valence_core::ident;
 
 use crate::random::random_state::RandomState;
 use crate::registry::mc_meta::McMetaRegistry;
@@ -14,7 +13,10 @@ use crate::registry::Registry;
 
 #[test]
 fn generate_biomes() {
-    let registry = Arc::new(McMetaRegistry::new(concat!(env!("CARGO_MANIFEST_DIR"), "/../../mcmeta"), None));
+    let registry = Arc::new(McMetaRegistry::new(
+        concat!(env!("CARGO_MANIFEST_DIR"), "/../../mcmeta"),
+        None,
+    ));
 
     let settings = registry
         .noise_generator_settings(&ident!("minecraft:overworld"))

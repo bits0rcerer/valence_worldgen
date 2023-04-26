@@ -1,8 +1,8 @@
 use std::simd::{f64x4, i32x4};
 use std::sync::Arc;
 
-use valence_protocol::block_pos::BlockPos;
-use valence_protocol::ident::Ident;
+use valence_core::block_pos::BlockPos;
+use valence_core::ident::Ident;
 
 use crate::density_function::{ContextProvider, DensityFunction};
 use crate::noise::normal::NormalNoise;
@@ -105,7 +105,7 @@ impl DensityFunction for Noise {
 }
 
 pub fn noise(
-    id: &Ident<String>,
+    id: &Ident<&str>,
     random_state: &RandomState,
     value_factor: f64,
     input_factor: f64x4,
@@ -115,7 +115,7 @@ pub fn noise(
 }
 
 pub fn shift_noise(
-    id: &Ident<String>,
+    id: &Ident<&str>,
     random_state: &RandomState,
     value_factor: f64,
     input_factor: f64x4,
@@ -131,7 +131,7 @@ pub fn shift_noise(
 }
 
 pub fn shifted_noise(
-    id: &Ident<String>,
+    id: &Ident<&str>,
     random_state: &RandomState,
     value_factor: f64,
     input_factor: f64x4,
@@ -150,7 +150,7 @@ pub fn shifted_noise(
     ))
 }
 
-fn instantiate_noise(id: &Ident<String>, random_state: &RandomState) -> eyre::Result<NormalNoise> {
+fn instantiate_noise(id: &Ident<&str>, random_state: &RandomState) -> eyre::Result<NormalNoise> {
     let noise_data = random_state.registry.noise(id)?;
     let noise = NormalNoise::new(
         random_state.random.with_hash_of(id.as_str()).as_mut(),

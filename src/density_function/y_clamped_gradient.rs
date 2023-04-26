@@ -1,4 +1,4 @@
-use valence_protocol::block_pos::BlockPos;
+use valence_core::block_pos::BlockPos;
 
 use crate::density_function::{ContextProvider, DensityFunction};
 
@@ -43,7 +43,7 @@ impl DensityFunction for YClampedGradient {
 
 #[cfg(test)]
 mod test {
-    use valence_protocol::block_pos::BlockPos;
+    use valence_core::block_pos::BlockPos;
 
     use crate::density_function::y_clamped_gradient::YClampedGradient;
     use crate::random::xoroshiro::XoroshiroRandom;

@@ -1,4 +1,4 @@
-use valence_protocol::block_pos::BlockPos;
+use valence_core::block_pos::BlockPos;
 
 use crate::density_function::{ContextProvider, DensityFunction};
 use crate::spline::{Built, CubicSpline};

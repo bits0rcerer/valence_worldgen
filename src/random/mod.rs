@@ -3,7 +3,7 @@ use std::num::Wrapping;
 
 use serde::de::{Error, Visitor};
 use serde::{Deserialize, Deserializer};
-use valence_protocol::block_pos::BlockPos;
+use valence_core::block_pos::BlockPos;
 
 #[cfg(test)]
 mod test;

@@ -6,13 +6,13 @@ use std::sync::{Arc, RwLock};
 
 use eyre::eyre;
 use serde::de;
-use valence_protocol::ident::Ident;
+use valence_core::ident::Ident;
 
 use crate::density_function::deserialize::DensityFunctionTree;
 use crate::noise::deserialize::{NoiseGeneratorSettings, NoiseParameters};
 use crate::registry::Registry;
 
-type Cache<T> = RwLock<HashMap<Ident<String>, Arc<T>>>;
+type Cache<T> = RwLock<HashMap<String, Arc<T>>>;
 
 pub struct McMetaRegistry {
     root_registry: Option<Box<dyn Registry>>,
@@ -54,9 +54,9 @@ impl McMetaRegistry {
             .map_err(|e| eyre!("unable to deserialize {path:?}::{} - {e}", e.path()))
     }
 
-    fn cached<T, H: FnMut(&Ident<String>, T) -> eyre::Result<T>>(
+    fn cached<T, H: FnMut(&Ident<&str>, T) -> eyre::Result<T>>(
         &self,
-        id: &Ident<String>,
+        id: &Ident<&str>,
         map: &Cache<T>,
         path: &PathBuf,
         mut hydration_visitor: H,
@@ -66,8 +66,8 @@ impl McMetaRegistry {
     {
         match map.read() {
             Ok(map) => {
-                if map.contains_key(id) {
-                    return Ok(map.get(id).unwrap().clone());
+                if map.contains_key(id.as_str()) {
+                    return Ok(map.get(id.as_str()).unwrap().clone());
                 }
             }
             Err(e) => {
@@ -78,15 +78,15 @@ impl McMetaRegistry {
         return match self.load_from_file(path) {
             Ok(object) => match map.write() {
                 Ok(mut map) => {
-                    if map.contains_key(id) {
-                        return Ok(map.get(id).unwrap().clone());
+                    if map.contains_key(id.as_str()) {
+                        return Ok(map.get(id.as_str()).unwrap().clone());
                     }
 
                     let arc = Arc::from(match hydration_visitor(id, object) {
                         Ok(o) => o,
                         Err(e) => return Err(e),
                     });
-                    map.insert(id.clone(), arc.clone());
+                    map.insert(id.to_string(), arc.clone());
                     Ok(arc)
                 }
                 Err(e) => Err(eyre!("unable to acquire lock on map, {}", e)),
@@ -95,7 +95,7 @@ impl McMetaRegistry {
         };
     }
 
-    fn data_path<'a>(path: &'a str, tag: &'a Ident<String>) -> PathBuf {
+    fn data_path<'a>(path: &'a str, tag: &'a Ident<&str>) -> PathBuf {
         format!("data/{}/{}/{}.json", tag.namespace(), path, tag.path()).into()
     }
 }
@@ -120,7 +120,7 @@ impl Registry for McMetaRegistry {
         }
     }
 
-    fn density_function(&self, id: &Ident<String>) -> eyre::Result<Arc<DensityFunctionTree>> {
+    fn density_function(&self, id: &Ident<&str>) -> eyre::Result<Arc<DensityFunctionTree>> {
         self.cached(
             id,
             &self.density_function_cache,
@@ -129,7 +129,7 @@ impl Registry for McMetaRegistry {
         )
     }
 
-    fn noise(&self, id: &Ident<String>) -> eyre::Result<Arc<NoiseParameters>> {
+    fn noise(&self, id: &Ident<&str>) -> eyre::Result<Arc<NoiseParameters>> {
         self.cached(
             id,
             &self.noise_cache,
@@ -140,7 +140,7 @@ impl Registry for McMetaRegistry {
 
     fn noise_generator_settings(
         &self,
-        id: &Ident<String>,
+        id: &Ident<&str>,
     ) -> eyre::Result<Arc<NoiseGeneratorSettings>> {
         self.cached(
             id,

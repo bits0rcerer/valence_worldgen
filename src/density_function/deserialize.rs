@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use serde::Deserialize;
-use valence_protocol::ident::Ident;
+use valence_core::ident::Ident;
 
 use crate::spline::{Blueprint, CubicSpline};
 

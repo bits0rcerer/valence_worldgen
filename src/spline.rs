@@ -3,7 +3,7 @@ use std::sync::Arc;
 
 use eyre::eyre;
 use serde::{Deserialize, Deserializer};
-use valence_protocol::block_pos::BlockPos;
+use valence_core::block_pos::BlockPos;
 
 use crate::density_function::deserialize::DensityFunctionTree;
 use crate::density_function::DensityFunction;
@@ -192,7 +192,7 @@ pub fn lerp_32(t: f32, u0: f32, u1: f32) -> f32 {
 
 #[cfg(test)]
 mod test {
-    use valence_protocol::block_pos::BlockPos;
+    use valence_core::block_pos::BlockPos;
 
     use crate::random::xoroshiro::XoroshiroRandom;
     use crate::spline::{Built, CubicSpline, CubicSplinePoint};

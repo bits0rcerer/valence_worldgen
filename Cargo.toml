@@ -6,7 +6,8 @@ edition = "2021"
 license = "Apache-2.0"
 
 [dependencies]
-valence_protocol = { path = "../valence_protocol" }
+valence_core = { path = "../valence_core" }
+valence_block = { path = "../valence_block" }
 serde = { version = "1.0.145", features = ["derive", "rc"] }
 serde_json = "1.0.85"
 serde_path_to_error = "0.1.10"

@@ -1,4 +1,4 @@
-use valence_protocol::block_pos::BlockPos;
+use valence_core::block_pos::BlockPos;
 
 use crate::density_function::{ContextProvider, DensityFunction};
 
@@ -42,14 +42,15 @@ impl DensityFunction for RangeChoice {
     fn fill(&self, slice: &mut [f64], context_provider: &dyn ContextProvider) {
         self.input.fill(slice, context_provider);
 
-        slice.iter_mut().enumerate()
-            .for_each(|(i, v)| {
-                if *v >= self.min_inclusive && *v < self.max_exclusive {
-                    *v = self.when_in_range.compute(context_provider.for_index(i))
-                } else {
-                    *v = self.when_out_of_range.compute(context_provider.for_index(i))
-                }
-            })
+        slice.iter_mut().enumerate().for_each(|(i, v)| {
+            if *v >= self.min_inclusive && *v < self.max_exclusive {
+                *v = self.when_in_range.compute(context_provider.for_index(i))
+            } else {
+                *v = self
+                    .when_out_of_range
+                    .compute(context_provider.for_index(i))
+            }
+        })
     }
 
     fn min(&self) -> f64 {

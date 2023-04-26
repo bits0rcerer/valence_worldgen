@@ -1,4 +1,4 @@
-use valence_protocol::block_pos::BlockPos;
+use valence_core::block_pos::BlockPos;
 
 #[cfg(test)]
 mod test;

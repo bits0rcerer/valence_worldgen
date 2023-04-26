@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
-use valence_protocol::block_pos::BlockPos;
+use valence_core::block_pos::BlockPos;
 
-use crate::density_function::{sort_min_max, DensityFunction, ContextProvider};
+use crate::density_function::{sort_min_max, ContextProvider, DensityFunction};
 
 pub struct Transformer<T: Fn(f64) -> f64 + Sync> {
     f: Box<dyn DensityFunction>,

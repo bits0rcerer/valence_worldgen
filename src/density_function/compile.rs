@@ -1,6 +1,6 @@
 use std::simd::{f64x4, i32x4};
 
-use valence_protocol::ident;
+use valence_core::ident::Ident;
 
 use crate::density_function;
 use crate::density_function::abs::abs;
@@ -30,7 +30,7 @@ impl DensityFunctionTree {
             DensityFunctionTree::Constant(arg) => Ok(Constant::new(*arg)),
             DensityFunctionTree::Reference(id) => random_state
                 .registry
-                .density_function(&ident!("{id}"))?
+                .density_function(&Ident::new(id)?.as_str_ident())?
                 .compile(random_state),
             DensityFunctionTree::Inline(f) => f.compile(random_state),
         }
@@ -115,26 +115,26 @@ impl InlineDensityFunctionTree {
                 xz_scale,
                 y_scale,
             } => density_function::noise::noise(
-                noise,
+                &noise.as_str_ident(),
                 random_state,
                 1.0,
                 f64x4::from_array([*xz_scale, *y_scale, *xz_scale, 0.0]),
             ),
             InlineDensityFunctionTree::Shift { noise } => density_function::noise::noise(
-                noise,
+                &noise.as_str_ident(),
                 random_state,
                 4.0,
                 f64x4::from_array([0.25, 0.25, 0.25, 0.0]),
             ),
             InlineDensityFunctionTree::ShiftA { noise } => density_function::noise::shift_noise(
-                noise,
+                &noise.as_str_ident(),
                 random_state,
                 4.0,
                 f64x4::from_array([0.25, 0.0, 0.25, 0.0]),
                 |pos| i32x4::from_array([pos.x, 0, pos.z, 0]).cast(),
             ),
             InlineDensityFunctionTree::ShiftB { noise } => density_function::noise::shift_noise(
-                noise,
+                &noise.as_str_ident(),
                 random_state,
                 4.0,
                 f64x4::from_array([0.25, 0.25, 0.0, 0.0]),
@@ -148,7 +148,7 @@ impl InlineDensityFunctionTree {
                 xz_scale,
                 y_scale,
             } => density_function::noise::shifted_noise(
-                noise,
+                &noise.as_str_ident(),
                 random_state,
                 1.0,
                 f64x4::from_array([*xz_scale, *y_scale, *xz_scale, 0.0]),

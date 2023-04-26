@@ -1,4 +1,4 @@
-use valence_protocol::block_pos::BlockPos;
+use valence_core::block_pos::BlockPos;
 
 use crate::density_function::{ContextProvider, DensityFunction};
 
@@ -21,7 +21,9 @@ impl DensityFunction for Clamp {
 
     fn fill(&self, slice: &mut [f64], context_provider: &dyn ContextProvider) {
         self.f.fill(slice, context_provider);
-        slice.iter_mut().for_each(|v| *v = v.clamp(self.min, self.max))
+        slice
+            .iter_mut()
+            .for_each(|v| *v = v.clamp(self.min, self.max))
     }
 
     fn min(&self) -> f64 {
